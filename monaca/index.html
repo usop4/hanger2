@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <!--
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <!--
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    -->
+    <script src="p5.js"></script>
+    <style> body {padding: 0; margin: 0} </style> <!-- this line removes any default padding -->
+
+    <script type="text/javascript" charset="utf-8" src="components/loader.js"></script>
+    <script type="text/javascript" charset="utf-8" src="components/monaca-jquery/jquery.js"></script>
+    <script>
+        function getCamera(){
+            navigator.camera.getPicture(
+                    onSuccess,
+                    onFail,
+                    {
+                        //quality: 50,
+                        destinationType: Camera.DestinationType.FILE_URI,
+                        allowEdit:true
+                    });
+        }
+
+        function getLibrary(){
+            navigator.camera.getPicture(
+                    onSuccess,
+                    onFail,
+                    {
+                        quality: 50,
+                        destinationType: Camera.DestinationType.DATA_URL,
+                        sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+                    });
+        }
+
+        function onSuccess(data){
+            var img = new Image();
+            img.src = data;
+
+            $(img).bind("load",function(){
+                $("div#image-box").html($(img));
+
+                var canvas = document.getElementById("c1");
+                if( canvas.getContext ){
+                    var context = canvas.getContext('2d');
+                    context.drawImage(img,0,0,100,100);
+                    var data = canvas.toDataURL('image/jpeg');
+                    postImage(data);
+                }
+
+            });
+
+
+        }
+
+        function onFail(){
+            alert("onFail");
+        }
+
+        function postImage(image){
+            alert(image);
+            $.post(
+                    "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php",
+                    {
+                        'image':image
+                        //'image':image.replace(/^.*,/,'')
+                    },
+                    function(data){
+                        alert("success");
+
+                    },
+                    function(data){
+                        alert("failed");
+                    }
+            );
+        }
+    </script>
+</head>
+<body>
+
+<script>
+
+    var startX,startY;
+    var startMs = 0;
+    var direction = 0;
+
+    function touchStarted(){
+        startX = touchX;
+        startY = touchY;
+    }
+
+    function touchMoved(){
+        //text(".",touchX,touchY);
+    }
+
+    function touchEnded(){
+
+        var th = 0;
+
+        if( touchX - startX > th ){
+            text(String(touchX - startX)+" >",touchX,touchY);
+            direction = -1;
+            startMs = millis();
+        }
+
+        if( startX - touchX > th ){
+            text("< "+String(startX - touchX),touchX,touchY);
+            direction = +1;
+            startMs = millis();
+        }
+
+    }
+
+
+    function setup(){
+        bg_width = windowWidth;
+        bg_height = windowHeight;
+        createCanvas(bg_width,bg_height);
+
+        background('gray');
+
+        textSize(32);
+        fill("black");
+
+    }
+
+    function drawHanger(x){
+        var hangerWidth = 100;
+        var hangerHeight = 50;
+        var x1 = windowWidth/2 + x;
+        var x2 = x1 - hangerWidth;
+        var x3 = x1 + hangerWidth;
+        var y1 = 100;
+        var y2 = 100 + hangerHeight;
+        var y3 = 100 + hangerHeight;
+        strokeWeight(5);
+        stroke("green");
+        noFill();
+        triangle(x1,y1,x2,y2,x3,y3);
+
+    }
+
+    function draw(){
+
+        var interval = 300;
+        var ms = millis();
+        var size = 100;
+        var d = interval - (ms - startMs);
+
+        if( ms - startMs < interval ){
+            clear();
+            fill("red");
+            drawHanger( d * direction );
+        }else{
+            clear();
+            fill("green");
+            drawHanger(0);
+        }
+
+    }
+
+</script>
+
+<!--
+<button onclick="getCamera()">getCamera</button>
+<button onclick="getLibrary()">getCamera</button>
+
+<p>c1</p>
+<canvas id="c1" width="100" height="100"></canvas>
+
+<p>image-box</p>
+<div id="image-box"><img /></div>
+-->
+
+</body>
+</html>
