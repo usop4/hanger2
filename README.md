@@ -13,3 +13,4 @@ Arduinoの起動直後もしくはシリアルで7777を受信するとハンガ
 ## シナリオ３（Slack bot）
 
 Slackでハンガーボットと対話しながら着る服を選ぶ
+https://github.com/usopyon/hanger2/wiki/bot_scenario
