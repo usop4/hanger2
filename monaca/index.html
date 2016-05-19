@@ -78,27 +78,29 @@
     var startMs = 0;
     var direction = 0;
     var num = 1;
-    var numMax = 9;
+    var numMax = 6;
 
     var edgeWidth = 100;
     var edgeHeight = 100;
 
     function touchEnded(){
 
-        if( touchX > windowWidth - edgeWidth ){
-            direction = +1;
-            num = num + 1;
-            if( num > numMax ){
+        if( touchX > windowWidth - edgeWidth ){ // 画面右「+1」
+            direction = -1;
+            if( num == numMax ){
                 num = 1;
+            }else{
+                num = num + 1;
             }
             startMs = millis();
         }
 
-        if( touchX < edgeWidth ){
-            direction = -1;
-            num = num - 1;
-            if( num < 1 ){
+        if( touchX < edgeWidth ){ // 画面左「-1」
+            direction = +1;
+            if( num == 1 ){
                 num = numMax;
+            }else{
+                num = num - 1;
             }
             startMs = millis();
         }
@@ -126,6 +128,11 @@
     }
 
     function drawHanger(x,num){
+
+        if( num < 0 || num > numMax ){
+            return false;
+        }
+
         var hangerWidth = 100;
         var hangerHeight = 50;
         var ringSize = 30;
@@ -135,15 +142,28 @@
         var y1 = 100;
         var y2 = 100 + hangerHeight;
         var y3 = 100 + hangerHeight;
-        strokeWeight(5);
+
         stroke("green");
+
+        strokeWeight(5);
         noFill();
         arc(x1,y1-ringSize/2-3,ringSize,ringSize,PI,PI/2);
         triangle(x1,y1,x2,y2,x3,y3);
 
         textSize(40);
+        strokeWeight(1);
         textAlign(CENTER);
         text(num,(x2+x3)/2,y2-10);
+
+        image(img[num],x1-100/2,y2+100,100,100);
+
+    }
+
+    function preload(){
+        img = [];
+        for(var i=1;i<numMax+1;i++){
+            img[i] = loadImage('http://barcelona.sakura.ne.jp/sandbox/hanger2/'+String(i)+'.jpg');
+        }
     }
 
     function draw(){
@@ -160,13 +180,13 @@
         textSize("14");
         text("-1",20,windowHeight/2);
         text("+1",windowWidth-20,windowHeight/2);
-        text("camera",windowWidth/4,windowHeight-edgeHeight);
-        text("library",windowWidth*3/4,windowHeight-edgeHeight);
+        text("camera",windowWidth/4,windowHeight-10);
+        text("library",windowWidth*3/4,windowHeight-10);
 
         if( ms - startMs < interval ){
             clear();
-            drawHanger( d1 * direction ,num);
-            drawHanger( d2 * direction * (-1) ,num);
+            drawHanger( d1 * direction ,num );
+            drawHanger( d2 * direction * (-1) , num + direction );
         }
 
     }
