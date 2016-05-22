@@ -9,9 +9,11 @@
 class Slack{
 
     public $ini;
+    public $base_url;
 
     function Slack(){
         $this->ini = parse_ini_file("api.ini",true)["slack"];
+        $this->base_url = $this->ini["base_url"];
     }
 
     function sendMessage($text,$color=null){
@@ -34,7 +36,23 @@ class Slack{
             ];
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postfields));
         }
+        return curl_exec($curl);
+    }
 
+    function sendImage($num){
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            "Accept: application/json",
+            "Content-type: application/json"
+        ]);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_URL, $this->ini["hook"]);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+
+        $image_url = $this->base_url.$num.".jpg";
+        $postfields = '{"text":"# '.$num.'","attachments":[{"image_url":"'.$image_url.'"}]}';
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postfields);
         return curl_exec($curl);
     }
 
@@ -52,7 +70,9 @@ class Slack{
     }
 
 }
-/*
-$slack = new Slack();
-$slack->sendMessage("1234");
-*/
+
+if( isset($_GET["sendImage"]) ){
+    $num = $_GET["sendImage"];
+    $slack = new Slack();
+    $slack->sendImage($num);
+}
