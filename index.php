@@ -15,10 +15,12 @@ test page<br>
     <input type="submit">
 </form>
 
-<ul>
+<ul id="eventList">
     <li>0000：リセット（全て黒：消灯）</li>
     <li>1900：ハンガー１が赤</li>
     <li>2090：ハンガー２が緑</li>
+    <li>1：ハンガー１を、あらかじめ登録された色（赤）で点灯</li>
+    <li>red：特徴にredが含まれているハンガーを点灯</li>
 </ul>
 
 <img src="1.jpg">
@@ -30,6 +32,23 @@ test page<br>
 <img src="7.jpg">
 <img src="8.jpg">
 <img src="9.jpg">
+
+<script>
+    var eventList = document.getElementById("eventList");
+    var evtSource = new EventSource("sse.php");
+
+    evtSource.onmessage = function(e) {
+        var newElement = document.createElement("li");
+
+        newElement.innerHTML = e.data;
+        eventList.appendChild(newElement);
+    }
+
+    function stop(){
+        evtSource.close();
+    }
+
+</script>
 
 <?php
 require_once("slack.php");

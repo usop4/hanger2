@@ -56,9 +56,9 @@ class Slack{
         return curl_exec($curl);
     }
 
-    function dump($var,$reset=false){
+    function dump($var,$reset=false,$fname="log"){
         if( $reset ){
-            file_put_contents("log","");
+            file_put_contents($fname,"");
         }
         var_dump($var);
         echo "<BR>".PHP_EOL;
@@ -66,7 +66,7 @@ class Slack{
         var_dump($var);
         $out = ob_get_contents();
         ob_end_clean();
-        file_put_contents("log",date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
+        file_put_contents($fname,date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
     }
 
 }

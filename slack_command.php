@@ -41,6 +41,7 @@ if( isset($_POST["text"]) ){
             $results = file_get_contents($slack->base_url."db.php?query=".$text);
             $results = json_decode($results);
             foreach($results as $result){
+                file_get_contents($slack->base_url."db.php?on=".$result);
                 $slack->dump($result);
                 $slack->sendImage($result);
             }
