@@ -104,8 +104,13 @@ if( isset($_GET["init"]) ){
 
 if( isset($_GET["text"]) ){
     $text = $_GET["text"];
-    $re = $repl->sendMessage($text);
+
+    if( preg_match("/こんにちは/i",$text)){
+        // 「こんにちは」の場合、Repl-AIを初期化
+        $re = $repl->sendMessage("init",true);
+    }else{
+        $re = $repl->sendMessage($text);
+    }
     echo $re["systemText"]["expression"];
+
 }
-
-

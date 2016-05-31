@@ -73,6 +73,7 @@
     <nav id="nav">
         <ul>
             <li class="current"><a href="#">debug</a></li>
+            <li><a href="http://barcelona-prototype.com/sandbox/hanger2/selector.php">selector</a></li>
             <li><a href="https://github.com/usopyon/hanger2">github</a></li>
             <li><a href="https://sweetelectronics.wordpress.com/">project</a></li>
         </ul>

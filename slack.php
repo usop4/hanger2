@@ -6,6 +6,10 @@
  * Time: 11:50
  */
 
+require_once("common.php");
+
+date_default_timezone_set("Asia/Tokyo");
+
 class Slack{
 
     public $ini;
@@ -56,19 +60,6 @@ class Slack{
         return curl_exec($curl);
     }
 
-    function dump($var,$reset=false,$fname="log"){
-        if( $reset ){
-            file_put_contents($fname,"");
-        }
-        var_dump($var);
-        echo "<BR>".PHP_EOL;
-        ob_start();
-        var_dump($var);
-        $out = ob_get_contents();
-        ob_end_clean();
-        file_put_contents($fname,date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
-    }
-
 }
 
 if( isset($_GET["sendImage"]) ){
@@ -76,3 +67,47 @@ if( isset($_GET["sendImage"]) ){
     $slack = new Slack();
     $slack->sendImage($num);
 }
+
+if( isset($_POST["text"]) ){
+    $text = $_POST["text"];
+    $slack = new Slack();
+
+    if( strpos($text,'#') === false){ // # を含む場合は処理を除外
+
+        $re = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$text);
+        $slack->sendMessage("# ".$re);
+
+        $base_url = "http://barcelona-prototype.com/sandbox/hanger2/";
+        if( preg_match("/[0-9]{4}/i",$text)){
+            // 数字４桁の場合、シミュレータに送信
+            $color = file_get_contents($base_url."db.php?hanger=".$text);
+            $slack->sendMessage("# hanger ".$text,$color);
+        }
+
+        elseif( preg_match("/[0-9]/i",$text)){
+            // 数字１桁の場合、特定のハンガーを光らせる
+            $color = file_get_contents($base_url."db.php?on=".$text);
+            //$slack->sendMessage("# on ".$text,$color);
+            $slack->sendImage($text);
+        }
+
+        elseif( preg_match("/リセット/i",$text)){
+            // リセット
+            file_get_contents($base_url."db.php?reset");
+            $slack->sendMessage("# リセットしました");
+        }
+
+        // dbに格納されているキーワードと一致したら、服の番号を返す（Slackのみ）
+        $results = file_get_contents($slack->base_url."db.php?query=".$text);
+        $results = json_decode($results);
+        foreach($results as $result){
+            file_get_contents($slack->base_url."db.php?on=".$result);
+            $slack->sendImage($result);
+        }
+
+    }
+
+}
+
+mydump("temp",$_POST);
+mydump("temp","slack.php.fin");
