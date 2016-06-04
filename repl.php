@@ -11,7 +11,7 @@ class Repl{
 
     public $botId = 'first';
     public $appUserId = '';
-    public $initTopicId = 'hanger';
+    public $initTopicId = 'first';
 
     function Repl(){
         $temp = file_get_contents("user");

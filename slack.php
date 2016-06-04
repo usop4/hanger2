@@ -7,6 +7,8 @@
  */
 
 require_once("common.php");
+require('external/Pusher.php');
+
 
 date_default_timezone_set("Asia/Tokyo");
 
@@ -82,6 +84,16 @@ if( isset($_POST["text"]) ){
             // 数字４桁の場合、シミュレータに送信
             $color = file_get_contents($base_url."db.php?hanger=".$text);
             $slack->sendMessage("# hanger ".$text,$color);
+
+            $pusher = new Pusher(
+                '558d88d3ce23e25aaf24',
+                '802b39f92d0760c03203',
+                '213112',
+                ['encrypted'=>true]
+            );
+            $data['message'] = $text;
+            $pusher->trigger('test_channel', 'my_event', $data);
+
         }
 
         elseif( preg_match("/[0-9]/i",$text)){
@@ -108,6 +120,3 @@ if( isset($_POST["text"]) ){
     }
 
 }
-
-mydump("temp",$_POST);
-mydump("temp","slack.php.fin");

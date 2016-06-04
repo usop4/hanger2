@@ -7,14 +7,6 @@
     <link rel="stylesheet" href="assets/css/main.css" />
     <!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script>
-        function checkHanger(){
-            $('#iframe_id')[0].contentDocument.location.reload(true);
-        }
-        setInterval(checkHanger,3000);
-    </script>
-
 </head>
 <body>
 
@@ -25,28 +17,26 @@
         <!-- Post -->
         <article class="box post post-excerpt">
             <header>
-                <h2><a href="#">Debug Page</a></h2>
-                <p>Interactive hanger with LINE or slack.</p>
+                <h2><a href="#">Interactive hanger with LINE/slack</a></h2>
             </header>
             <div class="info">
+                <!--
                 <span class="date"><span class="month">Jul<span>y</span></span> <span class="day">14</span><span class="year">, 2016</span></span>
+                -->
+                <span class="date"><span id="command">command</span></span>
                 <ul class="stats">
-                    <li><a href="#" class="icon fa-comment">16</a></li>
-                    <li><a href="#" class="icon fa-heart">32</a></li>
-                    <li><a href="#" class="icon fa-twitter">64</a></li>
-                    <li><a href="#" class="icon fa-facebook">128</a></li>
+                    <li><a id="hanger1" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger2" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger3" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger4" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger5" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger6" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger7" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger8" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger9" href="#" class="icon fa-file"></a></li>
                 </ul>
             </div>
-            <iframe src="simHanger.php" id="iframe_id"></iframe>
-
-            <p>
-                <ul id="eventList">
-                    <li>0000：リセット（全て黒：消灯）</li>
-                    <li>1900：ハンガー１が赤</li>
-                    <li>2090：ハンガー２が緑</li>
-                    <li>1：ハンガー１を、あらかじめ登録された色（赤）で点灯</li>
-                    <li>red：特徴にredが含まれているハンガーを点灯</li>
-                </ul>
+            <p>このプロジェクトは、LINEやSlackと・・・（後で書く
             </p>
         </article>
 
@@ -92,24 +82,52 @@
 <script src="assets/js/util.js"></script>
 <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 <script src="assets/js/main.js"></script>
-
+<script src="https://js.pusher.com/3.1/pusher.min.js"></script>
 <script>
-    var eventList = document.getElementById("eventList");
-    var evtSource = new EventSource("sse.php");
 
-    evtSource.onmessage = function(e) {
-        var newElement = document.createElement("li");
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
 
-        newElement.innerHTML = e.data;
-        eventList.appendChild(newElement);
+    var pusher = new Pusher('558d88d3ce23e25aaf24', {
+        encrypted: true
+    });
+
+    var channel = pusher.subscribe('test_channel');
+    channel.bind('my_event', function(data) {
+        //alert(data.message);
+        $("#hanger").html(data.message);
+        setHanger(data.message);
+    });
+
+    function setHanger(text){
+        var num = text.toString().substr(0,1);
+        var c1 = text.toString().substr(1,1);
+        var c2 = text.toString().substr(2,1);
+        var c3 = text.toString().substr(3,1);
+
+        var temp = '#'+toHex(c1)+toHex(c2)+toHex(c3);
+        console.log(temp);
+
+        if( text == "0000" ){
+            for(var i=0;i<10;i++){
+                $("#hanger"+i).css('color','black');
+            }
+        }else{
+            $("#hanger"+num).css('color',temp);
+        }
+        $("#command").html(text);
     }
 
-    function stop(){
-        evtSource.close();
+    function toHex(num){
+        num = parseInt(num);
+        if( num == 0 ){
+            return "00";
+        }else{
+            return parseInt(255*num/10).toString(16);
+        }
     }
 
 </script>
-
 </body>
 </html>
 <?php

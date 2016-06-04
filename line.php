@@ -1,6 +1,7 @@
 <?php
 
 require_once("common.php");
+require('external/Pusher.php');
 
 class Line{
 
@@ -78,6 +79,21 @@ if( $json_string ){
     $from = $content->from;
     $message_id = $content->id;
     $content_type = $content->contentType;
+
+    $base_url = "http://barcelona-prototype.com/sandbox/hanger2/";
+    if( preg_match("/[0-9]{4}/i",$text)){
+        // 数字４桁の場合、シミュレータに送信
+        $color = file_get_contents($base_url."db.php?hanger=".$text);
+
+        $pusher = new Pusher(
+            '558d88d3ce23e25aaf24',
+            '802b39f92d0760c03203',
+            '213112',
+            ['encrypted'=>true]
+        );
+        $data['message'] = $text;
+        $pusher->trigger('test_channel', 'my_event', $data);
+    }
 
     $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$text);
 
