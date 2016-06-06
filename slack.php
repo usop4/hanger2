@@ -86,9 +86,9 @@ if( isset($_POST["text"]) ){
             $slack->sendMessage("# hanger ".$text,$color);
 
             $pusher = new Pusher(
-                '558d88d3ce23e25aaf24',
-                '802b39f92d0760c03203',
-                '213112',
+                'xxxx',
+                'xxxx',
+                'xxxx',
                 ['encrypted'=>true]
             );
             $data['message'] = $text;
