@@ -20,27 +20,37 @@
                 <h2><a href="#">Interactive hanger with LINE/slack</a></h2>
             </header>
             <div class="info">
-                <!--
-                <span class="date"><span class="month">Jul<span>y</span></span> <span class="day">14</span><span class="year">, 2016</span></span>
-                -->
-                <span class="date"><span id="command">command</span></span>
+                <span class="date"><span id="command">0000</span></span>
                 <ul class="stats">
-                    <li><a id="hanger1" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger2" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger3" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger4" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger5" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger6" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger7" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger8" href="#" class="icon fa-file"></a></li>
-                    <li><a id="hanger9" href="#" class="icon fa-file"></a></li>
+                    <li><a id="hanger1" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger2" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger3" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger4" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger5" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger6" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger7" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger8" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger9" href="#" class="icon fa-file">000</a></li>
                 </ul>
             </div>
-            <p>このプロジェクトは、LINEやSlackと・・・（後で書く
+            <p>
+                このプロジェクトは、LINEやSlackと・・・（後で書く
             </p>
+
+            <h3>選択中のbot</h3>
+            <p>
+                <form method="POST" action="index.php">
+                    <input type="radio" name="selector" id="bot_engine1" value="bot_engine1">bot_engine1<br>
+                    <input type="radio" name="selector" id="bot_simple" value="bot_simple">bot_simple<br>
+                    <input type="radio" name="selector" id="repl" value="repl">repl<br>
+                    <input type="submit">
+                </form>
+            </p>
+
         </article>
 
         <!-- Post -->
+
 
     </div>
 </div>
@@ -114,6 +124,7 @@
             }
         }else{
             $("#hanger"+num).css('color',temp);
+            $("#hanger"+num).html(c1+c2+c3);
         }
         $("#command").html(text);
     }
@@ -127,6 +138,16 @@
         }
     }
 
+    $.ajax({
+        url: "selector"
+    }).then(function(data){
+        console.log(data);
+        $("#"+data).attr("checked","checked");
+    }, function(){
+        console.log("fail");
+    });
+
+
 </script>
 </body>
 </html>
@@ -137,4 +158,8 @@ if( isset($_POST["text"]) ){
     $text = $_POST["text"];
     $slack = new Slack();
     $slack->sendMessage($text);
+}
+
+if( isset($_POST["selector"]) ){
+    file_put_contents("selector",$_POST["selector"]);
 }
