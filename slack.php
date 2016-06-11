@@ -85,10 +85,11 @@ if( isset($_POST["text"]) ){
             $color = file_get_contents($base_url."db.php?hanger=".$text);
             $slack->sendMessage("# hanger ".$text,$color);
 
+            $pusher_ini = parse_ini_file("api.ini",true)["pusher"];
             $pusher = new Pusher(
-                'xxxx',
-                'xxxx',
-                'xxxx',
+                $pusher_ini["key"],
+                $pusher_ini["secret"],
+                $pusher_ini["app_id"],
                 ['encrypted'=>true]
             );
             $data['message'] = $text;
