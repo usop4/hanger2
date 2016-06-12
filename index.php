@@ -121,6 +121,7 @@
             $("#hanger"+num).html(c1+c2+c3);
         }
         $("#command").html(text);
+        $.getJSON("http://127.0.0.1:8946/arduino/"+text);
     }
 
     function toHex(num){
@@ -142,9 +143,9 @@
         console.log("fail");
     });
 
+    // 初期化
     $.getJSON("db.php?clear");
-
-
+    $.getJSON("http://127.0.0.1:8946/arduino/0000");
 
 </script>
 </body>
