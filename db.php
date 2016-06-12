@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set("Asia/Tokyo");
+
 class DB{
 
     public $hex = ["00","08","10","30","50","70","90","A0","C0","FF"];
@@ -35,10 +37,16 @@ class DB{
         }
     }
 
+    function clear(){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("UPDATE db SET cmd=null");
+        $stmt->execute();
+    }
+
     function setColor($digit){
 
-        $this->dump("setColor");
-        $this->dump($digit);
+        //$this->dump("setColor");
+        //$this->dump($digit);
         $num = substr($digit,0,1);
         $color = substr($digit,1,3);
 
@@ -65,15 +73,16 @@ class DB{
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$on]);
             while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
-
                 $color = $result["color"];
                 $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
                 if( $result["color"] == $result["cmd"] ){
                     // 既に点灯していたら消す
                     $stmt->execute(["000",$on]);
+                    echo $on."000";
                 }else{
                     // 消えていたらcolorの値をcmdにコピー
                     $stmt->execute([$color,$on]);
+                    echo $on.$result["color"];
                 }
             }
         }
@@ -141,6 +150,10 @@ if( isset($_GET["create"]) ){
 
 if( isset($_GET["reset"]) ){
     $db->resetDb();
+}
+
+if( isset($_GET["clear"]) ){
+    $db->clear();
 }
 
 if( isset($_GET["on"]) ){

@@ -61,19 +61,10 @@
     <!-- Logo -->
     <h1 id="logo"><a href="#">hanger2</a></h1>
 
-    <!-- Search -->
-    <section class="box">
-        <form method="post" action="index.php">
-            <input type="text" class="text" name="text" placeholder="Command" />
-        </form>
-    </section>
-
-
     <!-- Nav -->
     <nav id="nav">
         <ul>
             <li class="current"><a href="#">debug</a></li>
-            <li><a href="http://barcelona-prototype.com/sandbox/hanger2/selector.php">selector</a></li>
             <li><a href="https://github.com/usopyon/hanger2">github</a></li>
             <li><a href="https://sweetelectronics.wordpress.com/">project</a></li>
         </ul>
@@ -110,6 +101,9 @@
     });
 
     function setHanger(text){
+
+        console.log(text);
+
         var num = text.toString().substr(0,1);
         var c1 = text.toString().substr(1,1);
         var c2 = text.toString().substr(2,1);
@@ -138,6 +132,7 @@
         }
     }
 
+    // 現在、どのbotが選択されているか
     $.ajax({
         url: "selector"
     }).then(function(data){
@@ -146,6 +141,9 @@
     }, function(){
         console.log("fail");
     });
+
+    $.getJSON("db.php?clear");
+
 
 
 </script>
