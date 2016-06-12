@@ -5,6 +5,8 @@
  * Date: 16/05/02
  * Time: 21:25
  */
+
+require_once("common.php");
 date_default_timezone_set('Asia/Tokyo');
 
 class Repl{
@@ -78,19 +80,6 @@ class Repl{
         $serverSendTime = $re["serverSendTime"];
         file_put_contents("time",$serverSendTime);
         return $re;
-    }
-
-    function dump($var, $reset=null){
-        if( $reset ){
-            file_put_contents("log","");
-        }
-        var_dump($var);
-        echo "<BR>".PHP_EOL;
-        ob_start();
-        var_dump($var);
-        $out = ob_get_contents();
-        ob_end_clean();
-        file_put_contents("log",date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
     }
 
 }

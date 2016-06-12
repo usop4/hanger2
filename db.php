@@ -29,7 +29,6 @@ class DB{
     }
 
     function resetDb(){
-        $this->dump("resetDb");
         $pdo = $this->initDb();
         $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
         for($i=0;$i<10;$i++){
@@ -45,8 +44,6 @@ class DB{
 
     function setColor($digit){
 
-        //$this->dump("setColor");
-        //$this->dump($digit);
         $num = substr($digit,0,1);
         $color = substr($digit,1,3);
 
@@ -115,7 +112,6 @@ class DB{
     function show(){
         $results = $this->getResults();
         foreach($results as $result){
-            var_dump($result);
             echo "<br>".PHP_EOL;
         }
     }
@@ -131,15 +127,6 @@ class DB{
         }
     }
 
-    function dump($array){
-        var_dump($array);
-        echo "<BR>".PHP_EOL;
-        ob_start();
-        var_dump($array);
-        $out = ob_get_contents();
-        ob_end_clean();
-        file_put_contents("log",date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
-    }
 
 }
 

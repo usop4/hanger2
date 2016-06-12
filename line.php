@@ -1,7 +1,6 @@
 <?php
 
 require_once("common.php");
-require('external/Pusher.php');
 
 class Line{
 
@@ -80,26 +79,27 @@ if( $json_string ){
     $message_id = $content->id;
     $content_type = $content->contentType;
 
-    $base_url = "http://barcelona-prototype.com/sandbox/hanger2/";
+
+    $base_url = parse_ini_file("api.ini",true)["base_url"];
     if( preg_match("/[0-9]{4}/i",$text)){
         // 数字４桁の場合、シミュレータに送信
-        $color = file_get_contents($base_url."db.php?hanger=".$text);
+        //$color = file_get_contents($base_url."db.php?hanger=".$text);
+        pushData($text);
 
-        $pusher = new Pusher(
-            '558d88d3ce23e25aaf24',
-            '802b39f92d0760c03203',
-            '213112',
-            ['encrypted'=>true]
-        );
-        $data['message'] = $text;
-        $pusher->trigger('test_channel', 'my_event', $data);
+    }
+    elseif( preg_match("/[0-9]{1}/i",$text)){
+        // 数字１桁の場合、特定のハンガーを光らせる
+        $message = file_get_contents($base_url."db.php?on=".$text);
+        //$color = file_get_contents($base_url."db.php?hanger=".$message);
+        pushData($message);
+    }
+    else{
+        $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$text);
+        $message = str_replace("\n","\\n",$message);
+
+        $line = new Line();
+        $line->sendMessage($from,"# ".$message);
     }
 
-    $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$text);
-
-    mydump("temp",$text);
-
-    $line = new Line();
-    $line->sendMessage($from,$message);
-
 }
+
