@@ -3,4 +3,5 @@
 api.ini
 test.php
 assets/
+.idea/*
 external/*

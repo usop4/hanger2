@@ -1,3 +1,10 @@
+<?php
+var_dump($_POST);
+if( isset($_POST["selector"]) ){
+    $selector = $_POST["selector"];
+    file_put_contents("selector",$selector);
+}
+?>
 <html>
 <head>
     <title>Hanger Project</title>
@@ -43,6 +50,7 @@
                     <input type="radio" name="selector" id="bot_engine1" value="bot_engine1">bot_engine1<br>
                     <input type="radio" name="selector" id="bot_simple" value="bot_simple">bot_simple<br>
                     <input type="radio" name="selector" id="repl" value="repl">repl<br>
+                    <input type="radio" name="selector" id="userlocal" value="userlocal">userlocal<br>
                     <input type="submit">
                 </form>
             </p>
@@ -50,7 +58,6 @@
         </article>
 
         <!-- Post -->
-
 
     </div>
 </div>
@@ -135,7 +142,8 @@
 
     // 現在、どのbotが選択されているか
     $.ajax({
-        url: "selector"
+        url: "selector",
+        cache:false
     }).then(function(data){
         console.log(data);
         $("#"+data).attr("checked","checked");
@@ -150,15 +158,3 @@
 </script>
 </body>
 </html>
-<?php
-require_once("slack.php");
-
-if( isset($_POST["text"]) ){
-    $text = $_POST["text"];
-    $slack = new Slack();
-    $slack->sendMessage($text);
-}
-
-if( isset($_POST["selector"]) ){
-    file_put_contents("selector",$_POST["selector"]);
-}
