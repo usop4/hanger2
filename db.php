@@ -66,20 +66,24 @@ class DB{
 
         if( isset($_GET["on"]) ){
             $on = $_GET["on"];
-            $sql = "SELECT * FROM db WHERE num=?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$on]);
-            while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
-                $color = $result["color"];
-                $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
-                if( $result["color"] == $result["cmd"] ){
-                    // 既に点灯していたら消す
-                    $stmt->execute(["000",$on]);
-                    echo $on."000";
-                }else{
-                    // 消えていたらcolorの値をcmdにコピー
-                    $stmt->execute([$color,$on]);
-                    echo $on.$result["color"];
+            if( $on == "0" ){
+                echo "0000";
+            }else{
+                $sql = "SELECT * FROM db WHERE num=?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$on]);
+                while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+                    $color = $result["color"];
+                    $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
+                    if( $result["color"] == $result["cmd"] ){
+                        // 既に点灯していたら消す
+                        $stmt->execute(["000",$on]);
+                        echo $on."000";
+                    }else{
+                        // 消えていたらcolorの値をcmdにコピー
+                        $stmt->execute([$color,$on]);
+                        echo $on.$result["color"];
+                    }
                 }
             }
         }
