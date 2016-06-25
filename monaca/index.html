@@ -2,71 +2,19 @@
 <html>
 <head>
     <meta charset="utf-8">
+
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache">
+
     <script src="components/loader.js"></script>
     <script src="p5.js"></script>
     <style> body {padding: 0; margin: 0} </style> <!-- this line removes any default padding -->
     <script type="text/javascript" charset="utf-8" src="components/loader.js"></script>
     <script type="text/javascript" charset="utf-8" src="components/monaca-jquery/jquery.js"></script>
     <script>
-        function getCamera(){
-            navigator.camera.getPicture(
-                    onSuccess,
-                    onFail,
-                    {
-                        destinationType: Camera.DestinationType.FILE_URI,
-                        allowEdit:true
-                    });
-        }
-
-        function getLibrary(){
-            navigator.camera.getPicture(
-                    onSuccess,
-                    onFail,
-                    {
-                        destinationType: Camera.DestinationType.FILE_URI,
-                        sourceType: Camera.PictureSourceType.PHOTOLIBRARY
-                    });
-        }
-
-        function onSuccess(data){
-            var img = new Image();
-            img.src = data;
-
-            $(img).bind("load",function(){
-                $("div#image-box").html($(img));
-
-                var canvas = document.getElementById("c1");
-                if( canvas.getContext ){
-                    var context = canvas.getContext('2d');
-                    context.drawImage(img,0,0,100,100);
-                    var data = canvas.toDataURL('image/jpeg');
-                    postImage(data);
-                }
-            });
-        }
-
-        function onFail(){
-            //alert("onFail");
-            drawHanger(0,num);
-        }
-
-        function postImage(image){
-            $.post(
-                    "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php?fname="+num+".jpg",
-                    {
-                        'image':image
-                    },
-                    function(data){
-                        alert("success");
-                    },
-                    function(data){
-                        alert("failed");
-                    }
-            );
-            drawHanger(0,num);
-        }
 
     </script>
 </head>
@@ -74,158 +22,245 @@
 
 <script>
 
-    var startMs = 0;
-    var direction = 0;
-    var num = 1;
-    var numMax = 6;
+var debug = 0;// 1:debug
 
-    var edgeWidth = 100;
-    var edgeHeight = 100;
+var startMs = 0;
+var direction = 0;
+var num = 5;
+var numMax = 6;
 
-    var buttons = [];
+var imgSize = 200;
 
-    function Button(x,y){
-        this.x = x;
-        this.y = y;
-    }
+var edgeWidth = 100;
+var edgeHeight = 100;
 
-    function setButton(name,x,y){
-        buttons[name] = new Button(x,y);
-    }
+var buttons = [];
 
-    function drawButton(str){
-        strokeWeight(0);
-        fill("black");
-        textAlign(CENTER);
-        textSize("14");
-        text(str,buttons[str].x,buttons[str].y);
-    }
-
-    function touchEnded(){
-
-        var X = touchX;
-        var Y = touchY
-
-        if( checkClick("+1",X,Y) ){
-            direction = -1;
-            if( num == numMax ){
-                num = 1;
-            }else{
-                num = num + 1;
-            }
-            startMs = millis();
-        }
-
-        if( checkClick("-1",X,Y) ){
-            direction = +1;
-            if( num == 1 ){
-                num = numMax;
-            }else{
-                num = num - 1;
-            }
-            startMs = millis();
-        }
-
-        if( checkClick("camera",X,Y) ){
-            getCamera();
-        }
-
-        if( checkClick("library",X,Y) ){
-            getLibrary();
-        }
-
-    }
-
-    function checkClick(str,X,Y){
-        var area = 100;
-        var x = buttons[str].x;
-        var y = buttons[str].y;
-        if( x-area < X && X < x+area ){
-            if( y-area < Y && Y < y+area ){
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    function preload(){
-        img = [];
-        for(var i=1;i<numMax+1;i++){
-            //img[i] = loadImage('http://barcelona.sakura.ne.jp/sandbox/hanger2/'+String(i)+'.jpg');
+var img;
+function preload(){
+    var v = Math.random().toString(36).slice(-8);// 画像のキャッシュ防止
+    debug = window.location.href.match(/preview/);// もしURLにpreviewが含まれていたらローカルの画像ファイルを扱う
+    img = [];
+    for(var i=1;i<numMax+1;i++){
+        if( debug ){
             img[i] = loadImage('default/'+String(i)+'.jpg');
+        }else{
+            img[i] = loadImage('https://barcelona.sakura.ne.jp/sandbox/hanger2/'+String(i)+'.jpg?'+v);
         }
     }
+    img["hanger"] = loadImage('hanger.png');
+}
 
-    function setup(){
-        bg_width = windowWidth;
-        bg_height = windowHeight;
-        createCanvas(bg_width,bg_height);
+function setup(){
 
-        background('gray');
-
-        fill("black");
-
-        setButton("+1", windowWidth-20, windowHeight/2);
-        setButton("-1",20,windowHeight/2);
-        setButton("camera",windowWidth/4,windowHeight-10);
-        setButton("library",windowWidth*3/4,windowHeight-10);
-
+    var s = window.location.search;
+    if( s == "" ){
+        num = 1;
+    }else{
+        s = s.substring(1);
+        num = parseInt(s);
     }
 
-    function drawHanger(x,num){
+    bg_width = windowWidth;
+    bg_height = windowHeight;
+    createCanvas(bg_width,bg_height);
 
-        if( num < 0 || num > numMax ){
-            return false;
+    setButtons();
+
+    drawHanger( 0, num );
+
+}
+
+function Button(x,y){
+    this.x = x;
+    this.y = y;
+}
+
+function setButtons(){
+    setButton("reload", windowWidth/4, 20);
+    setButton("+1", windowWidth-20, windowHeight/2);
+    setButton("-1",20,windowHeight/2);
+    setButton("camera",windowWidth/4,windowHeight-10);
+    setButton("library",windowWidth*3/4,windowHeight-10);
+}
+
+function setButton(name,x,y){
+    buttons[name] = new Button(x,y);
+}
+
+function drawButtons(){
+    drawButton("reload");
+    drawButton("+1");
+    drawButton("-1");
+    drawButton("camera");
+    drawButton("library");
+}
+
+function drawButton(str){
+    noStroke();
+    fill("black");
+    textAlign(CENTER);
+    textSize("14");
+    text(str,buttons[str].x,buttons[str].y);
+}
+
+function touchEnded(){
+
+    var X = touchX;
+    var Y = touchY
+
+    if( checkClick("+1",X,Y) ){
+        direction = -1;
+        if( num == numMax ){
+            num = 1;
+        }else{
+            num = num + 1;
         }
-
-        var hangerWidth = 100;
-        var hangerHeight = 50;
-        var ringSize = 30;
-        var x1 = windowWidth/2 + x;
-        var x2 = x1 - hangerWidth;
-        var x3 = x1 + hangerWidth;
-        var y1 = 100;
-        var y2 = 100 + hangerHeight;
-        var y3 = 100 + hangerHeight;
-
-        stroke("green");
-
-        strokeWeight(5);
-        noFill();
-        arc(x1,y1-ringSize/2-3,ringSize,ringSize,PI,PI/2);
-        triangle(x1,y1,x2,y2,x3,y3);
-
-        textSize(40);
-        strokeWeight(1);
-        textAlign(CENTER);
-        text(num,(x2+x3)/2,y2-10);
-
-        image(img[num],x1-100/2,y2+100,100,100);
-
+        startMs = millis();
     }
 
-    function draw(){
-
-        var interval = 1000;
-        var ms = millis();
-        var size = 100;
-        var d1 = interval - (ms - startMs);
-        var d2 = ms - startMs;
-
-        drawButton("+1");
-        drawButton("-1");
-        drawButton("camera");
-        drawButton("library");
-
-        if( ms - startMs < interval ){
-            clear();
-            drawHanger( d1 * direction ,num );
-            drawHanger( d2 * direction * (-1) , num + direction );
+    if( checkClick("-1",X,Y) ){
+        direction = +1;
+        if( num == 1 ){
+            num = numMax;
+        }else{
+            num = num - 1;
         }
-
+        startMs = millis();
     }
+
+    if( checkClick("camera",X,Y) ){
+        getCamera();
+    }
+
+    if( checkClick("library",X,Y) ){
+        getLibrary();
+    }
+
+    if( checkClick("reload",X,Y) ){
+        location.href = 'index.html?'+num;
+    }
+
+}
+
+function checkClick(str,X,Y){
+    var area = 100;
+    var x = buttons[str].x;
+    var y = buttons[str].y;
+    if( x-area < X && X < x+area ){
+        if( y-area < Y && Y < y+area ){
+            return 1;
+        }
+    }
+    return 0;
+}
+
+function drawHanger(x,num){
+
+    if( num == 0 ){
+        num = numMax;
+    }
+
+    if( num == numMax+1 ){
+        num = 1;
+    }
+
+    var hangerWidth = 500/2;
+    var hangerHeight = 300/2;
+    var x1 = windowWidth/2 + x;
+    var y1 = hangerHeight/2 + 20;// ハンガー上部が時刻表示にかからない程度
+    imageMode(CENTER);
+    image(img["hanger"],x1,y1,hangerWidth,hangerHeight);
+
+    var y2 = hangerHeight/2 + 65;// ハンガー中央におさまる
+    stroke("black");
+    noFill();
+    textSize(40);
+    textAlign(CENTER);
+    text(num,x1,y2);
+
+    imageMode(CENTER);
+    image(img[num],x1,windowHeight/2,imgSize,imgSize);
+
+}
+
+function draw(){
+
+    var interval = 300;
+    var ms = millis();
+    var d1 = interval - (ms - startMs);
+    var d2 = ms - startMs;
+
+    drawButtons();
+
+    if( ms - startMs < interval ){
+        clear();
+        // 次に表示するハンガー
+        drawHanger( d1 * direction ,num );
+        // 元々、表示していたハンガー
+        drawHanger( d2 * direction * (-1) , num + direction  );
+    }
+
+}
+
+function getCamera(){
+    navigator.camera.getPicture(
+            onSuccess,
+            onFail,
+            {
+                destinationType: Camera.DestinationType.FILE_URI,
+                allowEdit:true
+            });
+}
+
+function getLibrary(){
+    navigator.camera.getPicture(
+            onSuccess,
+            onFail,
+            {
+                destinationType: Camera.DestinationType.FILE_URI,
+                sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+            });
+}
+
+function onSuccess(data){
+    var img = new Image();
+    img.src = data;
+
+    $(img).bind("load",function(){
+        $("div#image-box").html($(img));
+
+        var canvas = document.getElementById("c1");
+        if( canvas.getContext ){
+            var context = canvas.getContext('2d');
+            context.drawImage(img,0,0,imgSize,imgSize);
+            var data = canvas.toDataURL('image/jpeg');
+            postImage(data);
+        }
+    });
+}
+
+function onFail(){
+    alert("onFail");
+}
+
+function postImage(image){
+    $.post(
+            "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php?fname="+num+".jpg",
+            {
+                'image':image
+            },
+            function(data){
+                alert("success");
+            },
+            function(data){
+                alert("failed");
+            }
+    );
+}
+
 
 </script>
-<canvas hidden id="c1" width="100" height="100"></canvas>
+<canvas hidden id="c1" width="200" height="200"></canvas>
 </body>
 </html>
