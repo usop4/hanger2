@@ -14,9 +14,6 @@
     <style> body {padding: 0; margin: 0} </style> <!-- this line removes any default padding -->
     <script type="text/javascript" charset="utf-8" src="components/loader.js"></script>
     <script type="text/javascript" charset="utf-8" src="components/monaca-jquery/jquery.js"></script>
-    <script>
-
-    </script>
 </head>
 <body>
 
@@ -27,7 +24,7 @@ var debug = 0;// 1:debug
 var startMs = 0;
 var direction = 0;
 var num = 5;
-var numMax = 6;
+var numMax = 9;
 
 var imgSize = 200;
 
@@ -36,14 +33,17 @@ var edgeHeight = 100;
 
 var buttons = [];
 
+var mode = 0;// 0:hanger, 1:tile
+
 var img;
 function preload(){
     var v = Math.random().toString(36).slice(-8);// 画像のキャッシュ防止
-    debug = window.location.href.match(/preview/);// もしURLにpreviewが含まれていたらローカルの画像ファイルを扱う
     img = [];
     for(var i=1;i<numMax+1;i++){
-        if( debug ){
+        if( window.location.href.match(/preview/) ){ // monacaでのプレビュー用
             img[i] = loadImage('default/'+String(i)+'.jpg');
+        }else if( window.location.href.match(/localhost/) ){ // localでの動作確認用
+            img[i] = loadImage('../default/'+String(i)+'.jpg');
         }else{
             img[i] = loadImage('https://barcelona.sakura.ne.jp/sandbox/hanger2/'+String(i)+'.jpg?'+v);
         }
@@ -57,7 +57,7 @@ function setup(){
     if( s == "" ){
         num = 1;
     }else{
-        s = s.substring(1);
+        s = s.substring(1); // index.html?1から1を抽出する
         num = parseInt(s);
     }
 
@@ -77,19 +77,34 @@ function Button(x,y){
 }
 
 function setButtons(){
-    setButton("reload", windowWidth/4, 20);
-    setButton("+1", windowWidth-20, windowHeight/2);
-    setButton("-1",20,windowHeight/2);
-    setButton("camera",windowWidth/4,windowHeight-10);
-    setButton("library",windowWidth*3/4,windowHeight-10);
-}
+    buttons["reload"] = new Button(windowWidth/4, 20);
+    buttons["all"] = new Button(windowWidth*3/4,20);
+    buttons["+1"] = new Button(windowWidth-20, windowHeight/2);
+    buttons["-1"] = new Button(20,windowHeight/2);
+    buttons["camera"] = new Button(windowWidth/4,windowHeight-10);
+    buttons["library"] = new Button(windowWidth*3/4,windowHeight-10);
 
-function setButton(name,x,y){
-    buttons[name] = new Button(x,y);
+    var tileSize = windowWidth/3;
+    var x1 = windowWidth/2 - tileSize;
+    var x2 = windowWidth/2;
+    var x3 = windowWidth/2 + tileSize;
+    var y1 = windowHeight/2 - tileSize;
+    var y2 = windowHeight/2;
+    var y3 = windowHeight/2 + tileSize;
+    buttons[1] = new Button(x1,y1);
+    buttons[2] = new Button(x2,y1);
+    buttons[3] = new Button(x3,y1);
+    buttons[4] = new Button(x1,y2);
+    buttons[5] = new Button(x2,y2);
+    buttons[6] = new Button(x3,y2);
+    buttons[7] = new Button(x1,y3);
+    buttons[8] = new Button(x2,y3);
+    buttons[9] = new Button(x3,y3);
 }
 
 function drawButtons(){
     drawButton("reload");
+    drawButton("all");
     drawButton("+1");
     drawButton("-1");
     drawButton("camera");
@@ -141,6 +156,19 @@ function touchEnded(){
         location.href = 'index.html?'+num;
     }
 
+    if( checkClick("all",X,Y) ){
+        mode = 1;
+        showTile();
+    }
+
+    if( mode == 1 ){ // show as tile
+        for(var i=1;i<numMax+1;i++){
+            if( checkClick(i,X,Y) ){
+                location.href = "index.html?"+i;
+            }
+        }
+    }
+
 }
 
 function checkClick(str,X,Y){
@@ -153,6 +181,32 @@ function checkClick(str,X,Y){
         }
     }
     return 0;
+}
+
+function showTile(){
+
+    clear();
+
+    var tileSize = windowWidth/3;
+    var x1 = windowWidth/2 - tileSize;
+    var x2 = windowWidth/2;
+    var x3 = windowWidth/2 + tileSize;
+    var y1 = windowHeight/2 - tileSize;
+    var y2 = windowHeight/2;
+    var y3 = windowHeight/2 + tileSize;
+
+    image(img[1],x1,y1,tileSize,tileSize);
+    image(img[2],x2,y1,tileSize,tileSize);
+    image(img[3],x3,y1,tileSize,tileSize);
+    image(img[4],x1,y2,tileSize,tileSize);
+    image(img[5],x2,y2,tileSize,tileSize);
+    image(img[6],x3,y2,tileSize,tileSize);
+    image(img[7],x1,y3,tileSize,tileSize);
+    image(img[8],x2,y3,tileSize,tileSize);
+    image(img[9],x3,y3,tileSize,tileSize);
+
+    drawButtons();
+
 }
 
 function drawHanger(x,num){
@@ -169,10 +223,12 @@ function drawHanger(x,num){
     var hangerHeight = 300/2;
     var x1 = windowWidth/2 + x;
     var y1 = hangerHeight/2 + 20;// ハンガー上部が時刻表示にかからない程度
+    var y2 = hangerHeight/2 + 65;// ハンガー中央におさまるように番号を表示
+    var y3 = hangerHeight/2 + imgSize;// 画像下部のテキスト位置
+
     imageMode(CENTER);
     image(img["hanger"],x1,y1,hangerWidth,hangerHeight);
 
-    var y2 = hangerHeight/2 + 65;// ハンガー中央におさまる
     stroke("black");
     noFill();
     textSize(40);
@@ -195,6 +251,7 @@ function draw(){
 
     if( ms - startMs < interval ){
         clear();
+
         // 次に表示するハンガー
         drawHanger( d1 * direction ,num );
         // 元々、表示していたハンガー
@@ -205,22 +262,22 @@ function draw(){
 
 function getCamera(){
     navigator.camera.getPicture(
-            onSuccess,
-            onFail,
-            {
-                destinationType: Camera.DestinationType.FILE_URI,
-                allowEdit:true
-            });
+        onSuccess,
+        onFail,
+        {
+            destinationType: Camera.DestinationType.FILE_URI,
+            allowEdit:true
+        });
 }
 
 function getLibrary(){
     navigator.camera.getPicture(
-            onSuccess,
-            onFail,
-            {
-                destinationType: Camera.DestinationType.FILE_URI,
-                sourceType: Camera.PictureSourceType.PHOTOLIBRARY
-            });
+        onSuccess,
+        onFail,
+        {
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+        });
 }
 
 function onSuccess(data){
@@ -245,17 +302,18 @@ function onFail(){
 }
 
 function postImage(image){
+    alert(num);
     $.post(
-            "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php?fname="+num+".jpg",
-            {
-                'image':image
-            },
-            function(data){
-                alert("success");
-            },
-            function(data){
-                alert("failed");
-            }
+        "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php?fname="+num+".jpg",
+        {
+            'image':image
+        },
+        function(data){
+            alert("success");
+        },
+        function(data){
+            alert("failed");
+        }
     );
 }
 

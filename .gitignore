@@ -1,7 +1,11 @@
 # Created by .ignore support plugin (hsz.mobi)
 
+*.png
+*.jpg
 api.ini
 test.php
 assets/
+monaca/components/
 .idea/*
 external/*
+.htaccess
