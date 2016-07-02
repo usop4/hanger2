@@ -1,7 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: user
- * Date: 16/07/02
- * Time: 14:11
- */ 
+
+require_once("common.php");
+
+if( isset($_GET["data"]) ){
+    $data = $_GET["data"];
+    pushData("$data");
+}
