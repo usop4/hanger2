@@ -35,6 +35,10 @@ var buttons = [];
 
 var mode = 0;// 0:hanger, 1:tile
 
+var commonRGB = "999";
+
+var base_url = "http://barcelona.sakura.ne.jp/sandbox/hanger2/";
+
 var img;
 function preload(){
     var v = Math.random().toString(36).slice(-8);// 画像のキャッシュ防止
@@ -45,7 +49,7 @@ function preload(){
         }else if( window.location.href.match(/localhost/) ){ // localでの動作確認用
             img[i] = loadImage('../default/'+String(i)+'.jpg');
         }else{
-            img[i] = loadImage('https://barcelona.sakura.ne.jp/sandbox/hanger2/'+String(i)+'.jpg?'+v);
+            img[i] = loadImage(base_url+String(i)+'.jpg?'+v);
         }
     }
     img["hanger"] = loadImage('hanger.png');
@@ -68,6 +72,7 @@ function setup(){
     setButtons();
 
     drawHanger( 0, num );
+    liteHanger(num+commonRGB);
 
 }
 
@@ -132,6 +137,7 @@ function touchEnded(){
             num = num + 1;
         }
         startMs = millis();
+        liteHanger(num+commonRGB);
     }
 
     if( checkClick("-1",X,Y) ){
@@ -142,6 +148,7 @@ function touchEnded(){
             num = num - 1;
         }
         startMs = millis();
+        liteHanger(num+commonRGB);
     }
 
     if( checkClick("camera",X,Y) ){
@@ -302,9 +309,8 @@ function onFail(){
 }
 
 function postImage(image){
-    alert(num);
     $.post(
-        "http://barcelona.sakura.ne.jp/sandbox/hanger2/recvImage.php?fname="+num+".jpg",
+        base_url+"/recvImage.php?fname="+num+".jpg",
         {
             'image':image
         },
@@ -314,6 +320,16 @@ function postImage(image){
         function(data){
             alert("failed");
         }
+    );
+}
+
+function liteHanger(data){
+    console.log("liteHanger:"+data);
+    $.get(
+            base_url+"push.php?data=0000",
+            function(){
+                $.get(base_url+"push.php?data="+data)
+            }
     );
 }
 
