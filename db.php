@@ -15,17 +15,17 @@ class DB{
     function createDb(){
         $pdo = $this->initDb();
         $pdo->query("DROP TABLE db"); // 最初の１回だけコメントアウト
-        $pdo->query("CREATE TABLE db(num,cmd,color,feature)");
+        $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature)");
         $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?)");
-        $stmt->execute([1,"900","900","red"]);
-        $stmt->execute([2,"009","009","blue"]);
-        $stmt->execute([3,"090","090","green"]);
-        $stmt->execute([4,"609","609","purple"]);
-        $stmt->execute([5,"990","990","yellow"]);
-        $stmt->execute([6,"909","909",""]);
-        $stmt->execute([7,"777","777","grey"]);
-        $stmt->execute([8,"900","900","red"]);
-        $stmt->execute([9,"090","090","green"]);
+        $stmt->execute([1,"900","900","10","20","2016-06-10","red shirt"]);
+        $stmt->execute([2,"009","009","12","22","2016-06-10","blue"]);
+        $stmt->execute([3,"090","090","14","24","2016-06-10","green"]);
+        $stmt->execute([4,"609","609","16","26","2016-06-10","purple"]);
+        $stmt->execute([5,"990","990","18","28","2016-06-10","yellow"]);
+        $stmt->execute([6,"909","909","20","30","2016-06-10",""]);
+        $stmt->execute([7,"777","777","22","32","2016-06-10","grey"]);
+        $stmt->execute([8,"900","900","24","34","2016-06-10","red"]);
+        $stmt->execute([9,"090","090","26","36","2016-06-10","green"]);
     }
 
     function resetDb(){
@@ -89,6 +89,12 @@ class DB{
         }
     }
 
+    function setDesc($hanger=1,$desc="red"){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
+        $stmt->execute([$desc,$hanger]);
+    }
+
     function getResults(){
         $pdo = $this->initDb();
         $sql = "SELECT * FROM db";
@@ -97,6 +103,8 @@ class DB{
         $results = [];
         while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
             array_push($results,$result);
+            var_dump($result);
+            echo "<br>";
         }
         return $results;
     }
@@ -120,42 +128,56 @@ class DB{
         }
     }
 
-    function simHanger(){
-        $results = $this->getResults();
-        foreach($results as $result){
-            $r = $this->hex[ $result["cmd"][0] ];
-            $g = $this->hex[ $result["cmd"][1] ];
-            $b = $this->hex[ $result["cmd"][2] ];
-            $str = '<span style="color:#'.$r.$g.$b.'">'.$result["num"].'</font>';
-            echo $str;
-        }
-    }
-
 
 }
 
-$db = new DB();
 if( isset($_GET["create"]) ){
+    $db = new DB();
     $db->createDb();
 }
 
 if( isset($_GET["reset"]) ){
+    $db = new DB();
     $db->resetDb();
+    copy("default/1.jpg","1.jpg");
+    copy("default/2.jpg","2.jpg");
+    copy("default/3.jpg","3.jpg");
+    copy("default/4.jpg","4.jpg");
+    copy("default/5.jpg","5.jpg");
+    copy("default/6.jpg","6.jpg");
+    copy("default/7.jpg","7.jpg");
+    copy("default/8.jpg","8.jpg");
+    copy("default/9.jpg","9.jpg");
+    header("Location: /sandbox/hanger2");
 }
 
 if( isset($_GET["clear"]) ){
+    $db = new DB();
     $db->clear();
 }
 
 if( isset($_GET["on"]) ){
+    $db = new DB();
     $db->onHanger();
 }
 
 if( isset($_GET["hanger"]) ){
-    echo $db->setColor($_GET["hanger"]);
+    $db = new DB();
+    echo $db->setColor($_GET["hanger"]);// 4桁指定
+
+    if( isset($_GET["desc"]) ){ // hanger=1&desc=test
+        $db = new DB();
+        $db->setDesc($_GET["hanger"],$_GET["desc"]);
+    }
 }
 
 if( isset($_GET["query"]) ){
+    $db = new DB();
     $results = $db->query($_GET["query"]);
     echo json_encode($results);
+}
+
+if( isset($_GET["show"]) ){
+    $db = new DB();
+    $db->show();
 }

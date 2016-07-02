@@ -22,7 +22,11 @@ class Alchemy{
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
         $response = curl_exec($curl);
         $keywords = json_decode($response,true)["imageKeywords"];
-        return $keywords;
+        $kw = "";
+        foreach($keywords as $keyword){
+            $kw = $kw . $keyword["text"] . ",";
+        }
+        return $kw;
     }
 
 }
@@ -30,8 +34,5 @@ class Alchemy{
 if( isset($_GET["img"]) ){
     $img = $_GET["img"];
     $alchemy = new Alchemy();
-    $keywords = $alchemy->sendUrl($img);
-    foreach($keywords as $keyword){
-        echo $keyword["text"].",";
-    }
+    echo $alchemy->sendUrl($img);
 }

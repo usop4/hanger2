@@ -72,6 +72,8 @@ if( isset($_POST["selector"]) ){
     <nav id="nav">
         <ul>
             <li class="current"><a href="#">debug</a></li>
+            <li><a href="db.php?reset">reset</a></li>
+            <li><a href="db.php?show">db</a></li>
             <li><a href="https://github.com/usopyon/hanger2">github</a></li>
             <li><a href="https://sweetelectronics.wordpress.com/">project</a></li>
         </ul>
