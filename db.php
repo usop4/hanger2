@@ -16,16 +16,16 @@ class DB{
         $pdo = $this->initDb();
         $pdo->query("DROP TABLE db"); // 最初の１回だけコメントアウト
         $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature)");
-        $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?)");
-        $stmt->execute([1,"900","900","10","20","2016-06-10","red shirt"]);
+        $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?,?,?,?)");
+        $stmt->execute([1,"900","900","10","20","2016-06-11","カーディガン"]);
         $stmt->execute([2,"009","009","12","22","2016-06-10","blue"]);
-        $stmt->execute([3,"090","090","14","24","2016-06-10","green"]);
+        $stmt->execute([3,"090","090","14","24","2016-06-01","green"]);
         $stmt->execute([4,"609","609","16","26","2016-06-10","purple"]);
         $stmt->execute([5,"990","990","18","28","2016-06-10","yellow"]);
         $stmt->execute([6,"909","909","20","30","2016-06-10",""]);
         $stmt->execute([7,"777","777","22","32","2016-06-10","grey"]);
         $stmt->execute([8,"900","900","24","34","2016-06-10","red"]);
-        $stmt->execute([9,"090","090","26","36","2016-06-10","green"]);
+        $stmt->execute([9,"090","090","26","36","2016-06-01","green"]);
     }
 
     function resetDb(){
@@ -128,6 +128,24 @@ class DB{
         }
     }
 
+    function showOldest(){
+        $pdo = $this->initDb();
+
+        $sql = 'SELECT min(last) as minlast FROM db';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $minlast = $result["minlast"];
+
+        $sql = 'SELECT num FROM db WHERE last=?';
+        $stmt = $pdo->prepare($sql);
+        $results = $stmt->execute([$minlast]);
+        $str = "";
+        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+            $str = $str."<".$result["num"]."> ";
+        }
+        echo $str;
+    }
 
 }
 
@@ -138,7 +156,7 @@ if( isset($_GET["create"]) ){
 
 if( isset($_GET["reset"]) ){
     $db = new DB();
-    $db->resetDb();
+    $db->createDb();
     copy("default/1.jpg","1.jpg");
     copy("default/2.jpg","2.jpg");
     copy("default/3.jpg","3.jpg");
@@ -179,5 +197,6 @@ if( isset($_GET["query"]) ){
 
 if( isset($_GET["show"]) ){
     $db = new DB();
+    $db->showOldest();
     $db->show();
 }

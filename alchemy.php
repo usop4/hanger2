@@ -1,5 +1,6 @@
 <?php
 
+require_once("common.php");
 date_default_timezone_set("Asia/Tokyo");
 
 class Alchemy{
@@ -10,7 +11,7 @@ class Alchemy{
         $this->ini = parse_ini_file("api.ini",true)["alchemy"];
     }
 
-    function sendUrl($url="http://barcelona.sakura.ne.jp/sandbox/hanger2/1.jpg"){
+    function sendUrl($url=$base_url."1.jpg"){
         $key = $this->ini["key"];
         $url = "http://access.alchemyapi.com/calls/url/URLGetRankedImageKeywords"
             ."?apikey=".$key

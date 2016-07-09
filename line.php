@@ -79,8 +79,6 @@ if( $json_string ){
     $message_id = $content->id;
     $content_type = $content->contentType;
 
-
-    $base_url = parse_ini_file("api.ini",true)["base_url"];
     if( preg_match("/[0-9]{4}/i",$text)){
         // 数字４桁の場合、シミュレータに送信
         //$color = file_get_contents($base_url."db.php?hanger=".$text);
@@ -94,11 +92,11 @@ if( $json_string ){
         pushData($message);
     }
     else{
-        $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$text);
+        $message = file_get_contents($base_url."selector.php?text=".$text);
         $message = str_replace("\n","\\n",$message);
 
         $line = new Line();
-        $line->sendMessage($from,"# ".$message);
+        $line->sendMessage($from,$message);
     }
 
 }

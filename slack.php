@@ -13,11 +13,9 @@ date_default_timezone_set("Asia/Tokyo");
 class Slack{
 
     public $ini;
-    public $base_url;
 
     function Slack(){
         $this->ini = parse_ini_file("api.ini",true)["slack"];
-        $this->base_url = $this->ini["base_url"];
     }
 
     function sendMessage($text,$color=null){
@@ -71,7 +69,6 @@ if( isset($_GET["sendImage"]) ){
 if( isset($_POST["text"]) ){
     $text = $_POST["text"];
     $slack = new Slack();
-    $base_url = parse_ini_file("api.ini",true)["base_url"];
 
     if( strpos($text,'#') === false){ // # を含む場合は処理を除外
 
@@ -95,7 +92,7 @@ if( isset($_POST["text"]) ){
         else{
             // それ意外の場合、指定したエンジンに送る
             $temp = preg_replace('/&lt;[0-9]&gt;/','',$text);
-            $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$temp);
+            $message = file_get_contents($base_url."selector.php?text=".$temp);
             $slack->sendMessage("# ".$message);
             $message = preg_replace("/&lt;[0-9]&gt;/","",$message);
             pushData($message);

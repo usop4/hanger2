@@ -1,7 +1,9 @@
 <?php
 
+require_once("common.php");
+require_once("db.php");
+
 $text = $_GET["text"];
-$base_url = parse_ini_file("api.ini",true)["base_url"];
 
 if( preg_match("/(help)|(こんにちは)/i",$text)){
     echo "こんにちは。ハンガーbotです。\n"
@@ -32,16 +34,28 @@ elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
 
     if( preg_match("/(明日)/",$text) ){
         $desc = $xml->channel->item[2]->description;
+    }elseif( preg_match("/(明後日)/",$text) ){
+        $desc = $xml->channel->item[3]->description;
     }else{
         // 何も指定しない場合は今日の天気
         $desc = $xml->channel->item[1]->description;
     }
     echo $desc;
 
+    /* メモ
+    今日 null-25(15-25)　→　カーディガン
+    明日 23-33
+    明後日 22-32
+
+    nullの場合は-10を設定
+    1.カーディガン minが20以下
+
+    */
+
     $pattern = '/[0-9]{1,2}/';
     preg_match_all($pattern,$desc,$matches);
     $high = $matches[0][1];
-    $low = @$matches[0][2] ?: null;
+    $low = @$matches[0][2] ?: $high-10;
 
     echo "カーディガンもお忘れなく<0><".rand(1,9).">";
 }
@@ -51,7 +65,10 @@ elseif( preg_match("/(色)|(流行)/",$text)){
 }
 
 elseif( preg_match("/(チャレンジ)|(着てない)/",$text)){
-    echo "こちらがチャレンジコーデです。<0><".rand(1,9).">";
+    echo "こちらがチャレンジコーデです。";
+    echo "<0>";
+    $db = new DB;
+    echo $db->showOldest();
 }
 
 else{
@@ -63,7 +80,7 @@ else{
         echo $result."\n";
     }
 
-    echo "# ".$text." でございます";
+    echo $text." でございます";
 }
 
 

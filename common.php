@@ -1,6 +1,9 @@
 <?php
 
-require('external/Pusher.php');
+$ini = parse_ini_file("api.ini",true);
+$base_url = $ini["base_url"];
+
+date_default_timezone_set('Asia/Tokyo');
 
 function mydump($fname,$data){
     ob_start();
@@ -11,6 +14,7 @@ function mydump($fname,$data){
 }
 
 function pushData($text){
+    require_once('external/Pusher.php');
     $pusher_ini = parse_ini_file("api.ini",true)["pusher"];
     $pusher = new Pusher(
         $pusher_ini["key"],

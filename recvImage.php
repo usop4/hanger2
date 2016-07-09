@@ -2,8 +2,6 @@
 
 require_once("common.php");
 
-$base_url = "http://barcelona.sakura.ne.jp/sandbox/hanger2/";
-date_default_timezone_set('Asia/Tokyo');
 
 // スマートフォンから送信された画像をサーバ上に保存
 
