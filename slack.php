@@ -8,8 +8,6 @@
 
 require_once("common.php");
 
-date_default_timezone_set("Asia/Tokyo");
-
 class Slack{
 
     public $ini;

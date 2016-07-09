@@ -70,6 +70,7 @@ EOM;
 }
 
 $json_string = file_get_contents('php://input');
+//mydump("temp",$json_string);
 if( $json_string ){
 
     $json_object = json_decode($json_string);

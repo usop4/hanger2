@@ -1,7 +1,5 @@
 <?php
 
-date_default_timezone_set("Asia/Tokyo");
-
 require_once("common.php");
 
 if( isset($_GET["text"]) ){

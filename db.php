@@ -7,7 +7,6 @@ class DB{
     public $hex = ["00","08","10","30","50","70","90","A0","C0","FF"];
 
     function initDb(){
-        date_default_timezone_set('Asia/Tokyo');
         $pdo = new PDO('sqlite:db');
         return $pdo;
     }
