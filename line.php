@@ -8,8 +8,6 @@ class Line{
 
     function Line(){
         $this->ini = parse_ini_file("api.ini",true)["line"];
-        mydump("temp","ini");
-        mydump("temp",$this->ini);
     }
 
     function sendMessage($from,$text){
@@ -37,8 +35,6 @@ class Line{
             ]
         ]);
 
-        mydump("temp",$post);
-
         $event_type = "138311608800106203";
         $post = <<< EOM
 {
@@ -53,8 +49,6 @@ class Line{
 }
 EOM;
 
-        mydump("temp",$post);
-
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
@@ -62,7 +56,6 @@ EOM;
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $output = curl_exec($curl);
-        mydump("temp",$output);
         return $output;
 
     }
@@ -70,7 +63,6 @@ EOM;
 }
 
 $json_string = file_get_contents('php://input');
-//mydump("temp",$json_string);
 if( $json_string ){
 
     $json_object = json_decode($json_string);
@@ -82,14 +74,12 @@ if( $json_string ){
 
     if( preg_match("/[0-9]{4}/i",$text)){
         // 数字４桁の場合、シミュレータに送信
-        //$color = file_get_contents($base_url."db.php?hanger=".$text);
         pushData($text);
 
     }
     elseif( preg_match("/[0-9]{1}/i",$text)){
         // 数字１桁の場合、特定のハンガーを光らせる
         $message = file_get_contents($base_url."db.php?on=".$text);
-        //$color = file_get_contents($base_url."db.php?hanger=".$message);
         pushData($message);
     }
     else{
@@ -97,7 +87,20 @@ if( $json_string ){
         $message = str_replace("\n","\\n",$message);
 
         $line = new Line();
-        $line->sendMessage($from,$message);
+        $temp = preg_replace('/&lt;[0-9]&gt;/','',$message);
+        $line->sendMessage($from,$temp);
+
+        preg_match_all("/<[0-9]>/",$message,$out,PREG_PATTERN_ORDER);
+        foreach($out[0] as $hanger){
+            $hanger = preg_replace(["(<)","(>)"],"",$hanger);
+            if( $hanger != 0 ){
+                pushData($hanger."999");
+            }else{
+                pushData("0000");
+            }
+            sleep(0.2);
+        }
+
     }
 
 }
