@@ -86,6 +86,8 @@ if( isset($_POST["selector"]) ){
 
 </div>
 
+<iframe id="iframe" src="" width="1" height="1"></iframe>
+
 <!-- Scripts -->
 <script src="assets/js/jquery.min.js"></script>
 <script src="assets/js/skel.min.js"></script>
@@ -94,6 +96,11 @@ if( isset($_POST["selector"]) ){
 <script src="assets/js/main.js"></script>
 <script src="https://js.pusher.com/3.1/pusher.min.js"></script>
 <script>
+
+    if( window.location.href.match(/https/) ){
+        alert("httpに移動します");
+        location.href = "http://barcelona-prototype.com/sandbox/hanger2/"
+    }
 
     // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true;
@@ -106,7 +113,14 @@ if( isset($_POST["selector"]) ){
     channel.bind('my_event', function(data) {
         //alert(data.message);
         $("#hanger").html(data.message);
-        setHanger(data.message);
+        if( data.message.match(/^[0-9]{4}$/) ){
+            // 4桁だったらハンガーを光らせる
+            setHanger(data.message);
+        }else{
+            // それ以外だったら
+            console.log(data.message);
+            playVoice(data.message);
+        }
     });
 
     function setHanger(text){
@@ -140,6 +154,11 @@ if( isset($_POST["selector"]) ){
         }else{
             return parseInt(255*num/10).toString(16);
         }
+    }
+
+    function playVoice(text){
+        url = "voice.php?text="+text
+        $("#iframe").attr("src",url);
     }
 
     // 現在、どのbotが選択されているか
