@@ -87,7 +87,7 @@ if( $json_string ){
         $message = str_replace("\n","\\n",$message);
 
         $line = new Line();
-        $temp = preg_replace('/&lt;[0-9]&gt;/','',$message);
+        $temp = preg_replace('/<[0-9]>/','',$message);
         $line->sendMessage($from,$temp);
 
         preg_match_all("/<[0-9]>/",$message,$out,PREG_PATTERN_ORDER);
