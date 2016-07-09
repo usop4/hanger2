@@ -79,23 +79,26 @@ if( isset($_POST["text"]) ){
             // 数字４桁の場合、シミュレータに送信
             $hanger = $text;
             $color = file_get_contents($base_url."db.php?hanger=".$text);
-            $slack->sendMessage("# ".$text,$color);
-
+            //$slack->sendMessage("# ".$text,$color);
             pushData($text);
         }
         elseif( preg_match("/^[0-9]{1}/i",$text)){
             // 数字１桁の場合、特定のハンガーを光らせる
             $message = file_get_contents($base_url."db.php?on=".$text);
-            $slack->sendMessage($message);
+            //$slack->sendMessage($message);
 
             pushData($message);
         }
+        elseif( preg_match("/ルーレット/",$text)){
+            pushData("0777");
+        }
         else{
-
+            // それ意外の場合、指定したエンジンに送る
             $temp = preg_replace('/&lt;[0-9]&gt;/','',$text);
             $message = file_get_contents("http://barcelona-prototype.com/sandbox/hanger2/selector.php?text=".$temp);
             $slack->sendMessage("# ".$message);
-
+            $message = preg_replace("/&lt;[0-9]&gt;/","",$message);
+            pushData($message);
         }
 
     }
@@ -104,8 +107,12 @@ if( isset($_POST["text"]) ){
     preg_match_all("/&lt;[0-9]&gt;/",$text,$out,PREG_PATTERN_ORDER);
     foreach($out[0] as $hanger){
         $hanger = preg_replace(["(&lt;)","(&gt;)"],"",$hanger);
-        $slack->sendMessage($hanger);
-        sleep(0.1);
+        if( $hanger != 0 ){
+            pushData($hanger."999");
+        }else{
+            pushData("0000");
+        }
+        sleep(0.2);
     }
 
 }
