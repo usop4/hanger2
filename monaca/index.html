@@ -326,9 +326,9 @@ function postImage(image){
 function liteHanger(data){
     console.log("liteHanger:"+data);
     $.get(
-            base_url+"push.php?data=0000",
+            base_url+"push.php?data=00000",
             function(){
-                $.get(base_url+"push.php?data="+data)
+                $.get(base_url+"push.php?data=0"+data)
             }
     );
 }

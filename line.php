@@ -72,8 +72,8 @@ if( $json_string ){
     $message_id = $content->id;
     $content_type = $content->contentType;
 
-    if( preg_match("/[0-9]{4}/i",$text)){
-        // 数字４桁の場合、シミュレータに送信
+    if( preg_match("/[0-9]{4,5}/i",$text)){
+        // 数字5桁の場合、シミュレータに送信
         pushData($text);
 
     }
@@ -87,16 +87,17 @@ if( $json_string ){
         $message = str_replace("\n","\\n",$message);
 
         $line = new Line();
-        $temp = preg_replace('/<[0-9]>/','',$message);
+        $temp = preg_replace('/<[0-9]{2}>/','',$message);
         $line->sendMessage($from,$temp);
+        pushData($temp);
 
-        preg_match_all("/<[0-9]>/",$message,$out,PREG_PATTERN_ORDER);
+        preg_match_all("/<[0-9]{2}>/",$message,$out,PREG_PATTERN_ORDER);
         foreach($out[0] as $hanger){
             $hanger = preg_replace(["(<)","(>)"],"",$hanger);
             if( $hanger != 0 ){
                 pushData($hanger."999");
             }else{
-                pushData("0000");
+                pushData("00000");
             }
             sleep(0.2);
         }

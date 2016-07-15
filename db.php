@@ -1,5 +1,6 @@
 <?php
 
+require_once("common.php");
 date_default_timezone_set("Asia/Tokyo");
 
 class DB{
@@ -16,15 +17,21 @@ class DB{
         $pdo->query("DROP TABLE db"); // 最初の１回だけコメントアウト
         $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature)");
         $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?,?,?,?)");
-        $stmt->execute([1,"900","900","10","20","2016-06-11","カーディガン"]);
-        $stmt->execute([2,"009","009","12","22","2016-06-10","blue"]);
-        $stmt->execute([3,"090","090","14","24","2016-06-01","green"]);
-        $stmt->execute([4,"609","609","16","26","2016-06-10","purple"]);
-        $stmt->execute([5,"990","990","18","28","2016-06-10","yellow"]);
-        $stmt->execute([6,"909","909","20","30","2016-06-10",""]);
-        $stmt->execute([7,"777","777","22","32","2016-06-10","grey"]);
-        $stmt->execute([8,"900","900","24","34","2016-06-10","red"]);
-        $stmt->execute([9,"090","090","26","36","2016-06-01","green"]);
+        /* メモ
+        nullの場合は-10を設定
+        今日 15-25
+        明日 23-33
+        明後日 22-32
+        */
+        $stmt->execute(["01","900","900","10","30","2016-06-11","カーディガン"]);
+        $stmt->execute(["02","009","009","12","32","2016-06-10","blue"]);
+        $stmt->execute(["03","090","090","14","34","2016-06-01","green"]);
+        $stmt->execute(["04","609","609","16","36","2016-06-10","purple"]);
+        $stmt->execute(["05","990","990","18","38","2016-06-10","yellow"]);
+        $stmt->execute(["06","909","909","20","40","2016-06-10",""]);
+        $stmt->execute(["07","777","777","22","52","2016-06-10","grey"]);
+        $stmt->execute(["08","900","900","24","44","2016-06-10","red"]);
+        $stmt->execute(["09","090","090","26","46","2016-06-01","green"]);
     }
 
     function resetDb(){
@@ -65,8 +72,8 @@ class DB{
 
         if( isset($_GET["on"]) ){
             $on = $_GET["on"];
-            if( $on == "0" ){
-                echo "0000";
+            if( $on == "0" || $on == "00" ){
+                echo "00000";
             }else{
                 $sql = "SELECT * FROM db WHERE num=?";
                 $stmt = $pdo->prepare($sql);
@@ -138,7 +145,7 @@ class DB{
 
         $sql = 'SELECT num FROM db WHERE last=?';
         $stmt = $pdo->prepare($sql);
-        $results = $stmt->execute([$minlast]);
+        $stmt->execute([$minlast]);
         $str = "";
         while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
             $str = $str."<".$result["num"]."> ";
@@ -146,6 +153,18 @@ class DB{
         echo $str;
     }
 
+    function showByTemperature($low,$high){
+        $pdo = $this->initDb();
+        $sql = 'SELECT num FROM db WHERE low<? AND high>?';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$low,$high]);
+        $str = "";
+        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+            $str = $str."<".$result["num"]."> ";
+        }
+        echo $str;
+        mydump("log",$str);
+    }
 }
 
 if( isset($_GET["create"]) ){
@@ -196,6 +215,7 @@ if( isset($_GET["query"]) ){
 
 if( isset($_GET["show"]) ){
     $db = new DB();
-    $db->showOldest();
+    $db->showByTemperature(15,25);
+    //$db->showOldest();
     $db->show();
 }

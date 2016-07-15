@@ -8,16 +8,16 @@ $text = $_GET["text"];
 if( preg_match("/(help)|(こんにちは)/i",$text)){
     echo "こんにちは。ハンガーbotです。\n"
         ."天気、流行、\n"
-        ."などの言葉を元に、おすすめの服を選びます。<0>";
+        ."などの言葉を元に、おすすめの服を選びます。<00>";
 }
 
 elseif( preg_match("/リセット/",$text)){
     file_get_contents($base_url."db.php?reset");
-    echo "# DBをリセットしました<0>";
+    echo "# DBをリセットしました<00>";
 }
 
 elseif( preg_match("/(色)|(流行)/",$text)){
-    echo "流行りの色はカーキ、白、ブルーです。<0> <2> <4>";
+    echo "流行りの色はカーキ、白、ブルーです。<00> <02> <04>";
 }
 
 elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
@@ -42,29 +42,27 @@ elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
     }
     echo $desc;
 
-    /* メモ
-    今日 null-25(15-25)　→　カーディガン
-    明日 23-33
-    明後日 22-32
-
-    nullの場合は-10を設定
-    1.カーディガン minが20以下
-
-    */
-
-    $pattern = '/[0-9]{1,2}/';
+    $pattern = '/[0-9]{2}/';
     preg_match_all($pattern,$desc,$matches);
     $high = $matches[0][1];
-    $low = @$matches[0][2] ?: $high-10;
+    $low = @$matches[0][2] ?: $high-10;// 今日の天気の場合、最低気温が表示されないので-10にする
 
-    echo "カーディガンもお忘れなく<0><".rand(1,9).">";
+    echo "<00>";
+
+    $db = new DB;
+    echo $db->showByTemperature($high,$low);
+
+    if( $low < 18 ){
+        echo "カーディガンもお忘れなく<09>";
+    }
+
 }
 
 elseif( preg_match("/(色)|(流行)/",$text)){
-    echo "流行りの色はカーキ、白、ブルーです。<0> <2> <4>";
+    echo "流行りの色はカーキ、白、ブルーです。<00> <02> <04>";
 }
 
-elseif( preg_match("/(チャレンジ)|(着てない)/",$text)){
+elseif( preg_match("/(チャレンジ)|(着てない)|(勝負服)/",$text)){
     echo "こちらがチャレンジコーデです。";
     echo "<0>";
     $db = new DB;
@@ -73,12 +71,14 @@ elseif( preg_match("/(チャレンジ)|(着てない)/",$text)){
 
 else{
 
+    /*
     $results = file_get_contents($base_url."db.php?query=".$text);
     $results = json_decode($results);
     foreach($results as $result){
         file_get_contents($base_url."db.php?on=".$result);
         echo $result."\n";
     }
+    */
 
     echo $text." でございます";
 }

@@ -27,17 +27,17 @@ if( isset($_POST["selector"]) ){
                 <h2><a href="#">Interactive hanger with LINE/slack</a></h2>
             </header>
             <div class="info">
-                <span class="date"><span id="command">0000</span></span>
+                <span class="date"><span id="command">00000</span></span>
                 <ul class="stats">
-                    <li><a id="hanger1" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger2" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger3" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger4" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger5" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger6" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger7" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger8" href="#" class="icon fa-file">000</a></li>
-                    <li><a id="hanger9" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger01" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger02" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger03" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger04" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger05" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger06" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger07" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger08" href="#" class="icon fa-file">000</a></li>
+                    <li><a id="hanger09" href="#" class="icon fa-file">000</a></li>
                 </ul>
             </div>
             <p>
@@ -113,8 +113,8 @@ if( isset($_POST["selector"]) ){
     channel.bind('my_event', function(data) {
         //alert(data.message);
         $("#hanger").html(data.message);
-        if( data.message.match(/^[0-9]{4}$/) ){
-            // 4桁だったらハンガーを光らせる
+        if( data.message.match(/^[0-9]{4,5}$/) ){
+            // 5桁だったらハンガーを光らせる
             setHanger(data.message);
         }else{
             // それ以外だったら
@@ -127,15 +127,15 @@ if( isset($_POST["selector"]) ){
 
         console.log(text);
 
-        var num = text.toString().substr(0,1);
-        var c1 = text.toString().substr(1,1);
-        var c2 = text.toString().substr(2,1);
-        var c3 = text.toString().substr(3,1);
+        var num = text.toString().substr(0,2);
+        var c1 = text.toString().substr(2,1);
+        var c2 = text.toString().substr(3,1);
+        var c3 = text.toString().substr(4,1);
 
         var temp = '#'+toHex(c1)+toHex(c2)+toHex(c3);
         console.log(temp);
 
-        if( text == "0000" ){
+        if( text == "00000" ){
             for(var i=0;i<10;i++){
                 $("#hanger"+i).css('color','black');
             }
@@ -174,7 +174,7 @@ if( isset($_POST["selector"]) ){
 
     // 初期化
     $.getJSON("db.php?clear");
-    $.getJSON("http://127.0.0.1:8946/arduino/0000");
+    $.getJSON("http://127.0.0.1:8946/arduino/00000");
 
 </script>
 </body>

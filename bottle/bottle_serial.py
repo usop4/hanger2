@@ -15,7 +15,7 @@ try:
         if "tty.usbmodem" in file:
             ser.port = '/dev/'+file
             ser.open()
-    time.sleep(0.1)
+            time.sleep(0.1)
 except:
     print sys.exc_info()[0]
     raise
@@ -26,14 +26,20 @@ def arduino(command):
     try:
         ser.write(command)
         time.sleep(0.1)
-        #line = ser.readline()
-        #return line
+        line = ser.readline()
+        return line
     except:
         print sys.exc_info()[0]
     return command
 
 @route('/test')
-def arduino():
-    return "test"
+def test():
+    response.set_header('Access-Control-Allow-Origin','*')
+    try:
+        line = ser.readline()
+        return line
+    except:
+        print sys.exc_info()[0]
+    return command
 
 run(host="127.0.0.1",port=8946,debug=True)
