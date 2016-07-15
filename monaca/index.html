@@ -72,7 +72,7 @@ function setup(){
     setButtons();
 
     drawHanger( 0, num );
-    liteHanger(num+commonRGB);
+    liteHanger(num,commonRGB);
 
 }
 
@@ -137,7 +137,7 @@ function touchEnded(){
             num = num + 1;
         }
         startMs = millis();
-        liteHanger(num+commonRGB);
+        liteHanger(num,commonRGB);
     }
 
     if( checkClick("-1",X,Y) ){
@@ -148,7 +148,7 @@ function touchEnded(){
             num = num - 1;
         }
         startMs = millis();
-        liteHanger(num+commonRGB);
+        liteHanger(num,commonRGB);
     }
 
     if( checkClick("camera",X,Y) ){
@@ -323,14 +323,20 @@ function postImage(image){
     );
 }
 
-function liteHanger(data){
-    console.log("liteHanger:"+data);
-    $.get(
-            base_url+"push.php?data=00000",
-            function(){
-                $.get(base_url+"push.php?data=0"+data)
-            }
-    );
+function liteHanger(num,rgb){
+    var data = "";
+    if( num < 10 ){
+        data = "0"+String(num)+rgb;
+    }else{
+        data = String(num)+rgb;
+    }
+
+    setTimeout(function(){
+        $.get(base_url+"push.php?data=00000");
+    },0);
+    setTimeout(function(){
+        $.get(base_url+"push.php?data="+data);
+    },100);
 }
 
 
