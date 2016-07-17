@@ -115,7 +115,7 @@ if( isset($_POST["selector"]) ){
         $("#hanger").html(data.message);
         if( data.message.match(/^[0-9]{4,5}$/) ){
             // 5桁だったらハンガーを光らせる
-            setHanger(data.message);
+            //setHanger(data.message);
         }else{
             // それ以外だったら
             console.log(data.message);
@@ -144,7 +144,7 @@ if( isset($_POST["selector"]) ){
             $("#hanger"+num).html(c1+c2+c3);
         }
         $("#command").html(text);
-        $.getJSON("http://127.0.0.1:8946/arduino/"+text);
+        //$.getJSON("http://127.0.0.1:8946/arduino/"+text);
     }
 
     function toHex(num){
@@ -174,7 +174,7 @@ if( isset($_POST["selector"]) ){
 
     // 初期化
     $.getJSON("db.php?clear");
-    $.getJSON("http://127.0.0.1:8946/arduino/00000");
+    //$.getJSON("http://127.0.0.1:8946/arduino/00000");
 
 </script>
 </body>
