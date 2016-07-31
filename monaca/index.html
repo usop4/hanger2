@@ -26,7 +26,7 @@ var direction = 0;
 var num = 5;
 var numMax = 9;
 
-var imgSize = 200;
+var defaultImageSize = 200;
 
 var edgeWidth = 100;
 var edgeHeight = 100;
@@ -53,6 +53,7 @@ function preload(){
         }
     }
     img["hanger"] = loadImage('hanger.png');
+    img["bg"] = loadImage('bg.jpg');
 }
 
 function setup(){
@@ -69,10 +70,38 @@ function setup(){
     bg_height = windowHeight;
     createCanvas(bg_width,bg_height);
 
+    imageMode(CENTER);
+    image(img["bg"],windowWidth/2,windowHeight/2,windowWidth,windowHeight);
+
     setButtons();
 
     drawHanger( 0, num );
     liteHanger(num,commonRGB);
+
+}
+
+function draw(){
+
+    var interval = windowWidth;
+    var ms = millis();
+    var d1 = interval - (ms - startMs);
+    var d2 = ms - startMs;
+
+    drawButtons();
+
+    if( ms - startMs < interval ){
+        clear();
+
+        imageMode(CENTER);
+        image(img["bg"],windowWidth/2,windowHeight/2,windowWidth,windowHeight);
+
+        // 次に表示するハンガー
+        drawHanger( d1 * direction ,num );
+
+        // 元々、表示していたハンガー
+        drawHanger( d2 * direction * (-1) , num + direction  );
+
+    }
 
 }
 
@@ -226,44 +255,53 @@ function drawHanger(x,num){
         num = 1;
     }
 
-    var hangerWidth = 500/2;
-    var hangerHeight = 300/2;
     var x1 = windowWidth/2 + x;
-    var y1 = hangerHeight/2 + 20;// ハンガー上部が時刻表示にかからない程度
-    var y2 = hangerHeight/2 + 65;// ハンガー中央におさまるように番号を表示
-    var y3 = hangerHeight/2 + imgSize;// 画像下部のテキスト位置
+    var x2 = windowWidth/2 + x;
+
+    // ハンガー
+
+    var hangerWidth = windowWidth-40;//500/2;
+    var hangerHeight = hangerWidth*3/5;//300/2;
+    var y_hanger = hangerHeight/2;// + 20;// ハンガー上部が時刻表示にかからない程度
 
     imageMode(CENTER);
-    image(img["hanger"],x1,y1,hangerWidth,hangerHeight);
+    image(img["hanger"],x1,y_hanger,hangerWidth,hangerHeight);
 
     stroke("black");
     noFill();
     textSize(40);
     textAlign(CENTER);
-    text(num,x1,y2);
+    text(num,x1,y_hanger);
+
+    // 説明文
+
+    var y_desc = hangerHeight +10;
+
+    rectMode(CORNER);
+    noStroke();
+    fill(255);
+    rect(x+20,y_desc,hangerWidth,windowHeight);
+
+    fill("black");
+    textAlign(CENTER);
+
+    textSize(32);
+    text("border,black&white",x1,y_desc+180);
+
+    textSize(32);
+    text("last: 5 days ago",x1,y_desc+240);
+
+    textSize(32);
+    text("weather: all",x1,y_desc+300);
+
+
+    // 画像
+
+    var imageSize = windowHeight/4;
+    var y_image = windowHeight*3/8;
 
     imageMode(CENTER);
-    image(img[num],x1,windowHeight/2,imgSize,imgSize);
-
-}
-
-function draw(){
-
-    var interval = 300;
-    var ms = millis();
-    var d1 = interval - (ms - startMs);
-    var d2 = ms - startMs;
-
-    drawButtons();
-
-    if( ms - startMs < interval ){
-        clear();
-
-        // 次に表示するハンガー
-        drawHanger( d1 * direction ,num );
-        // 元々、表示していたハンガー
-        drawHanger( d2 * direction * (-1) , num + direction  );
-    }
+    image(img[num],x2,y_image,imageSize,imageSize);
 
 }
 
@@ -297,7 +335,7 @@ function onSuccess(data){
         var canvas = document.getElementById("c1");
         if( canvas.getContext ){
             var context = canvas.getContext('2d');
-            context.drawImage(img,0,0,imgSize,imgSize);
+            context.drawImage(img,0,0,defaultImageSize,defaultImageSize);
             var data = canvas.toDataURL('image/jpeg');
             postImage(data);
         }
