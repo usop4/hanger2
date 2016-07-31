@@ -1,10 +1,10 @@
 /*
  * 光るハンガー用スケッチ
  * LilyPadを利用
- * シリアルで「1234」と入力すると
+ * シリアルで「01234」と入力すると
  * 1番目のPixelにr=2,g=3,b=4の値が設定される
- * 「0000」と入力すると全てリセットされる
- * 「7777」と入力するとルーレット
+ * 「00000」と入力すると全てリセットされる
+ * 「00777」と入力するとルーレット
  */
 
 #include <Adafruit_NeoPixel.h>
@@ -12,60 +12,83 @@
 
 // NeoPixel
 
-int pin = 3; //GEMMA->1,LilyPad->3
-int numpixels = 10;
+const int pin = 6;
+const int numhangers = 8;
+const int interval = 1;
+const int numpixels = numhangers * interval;
+const int ratio = 1;// 明るさ
 
-int interval = 1;
+const int rouletteMin = numhangers * 1;//
+const int rouletteMax = numhangers * 2;//
+const int delayTime = 100;
 
 long t = 0;
 long old_t = 0;
 
-int r;
-int g;
-int b;
+int r[numhangers];
+int g[numhangers];
+int b[numhangers];
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(numpixels, pin, NEO_GRB + NEO_KHZ800);
 
-void setup() {
-  pixels.begin(); // This initializes the NeoPixel library.
-  Serial.begin(9600);
+int switchValue;
 
-  //Serial.println("Hello");
-  roulette();
+void setup() {
+
+/*
+  pinMode(button1,INPUT);
+  digitalWrite(button1,HIGH);
+*/
+  
+  pixels.begin(); 
+  
+  Serial.begin(115200);
+  Serial.println("Hello");
+
+  randomSeed(analogRead(0));
+
+  // 明るさのキャリブレーション用
+  for(int i=1;i<numhangers+1;i++){
+    liteMyHanger(i,random(9),random(9),random(9));    
+  }
+  liteMyHanger(1,9,9,9);
+  liteMyHanger(numhangers,9,9,9);
 
 }
 
 void loop() {
 
   t = millis();
-
-  if( ( t - old_t ) > 1000UL * 3UL ){
-    int val = analogRead(A2);
-    Serial.println(val);
-    old_t = t;
-  }
-
+  
   int num = 0;
   int n = 0;
   byte buff[4];
+  int d1 = 0;
+  int d2 = 0;
 
   while (Serial.available()){
     buff[num] = (int)Serial.read() - 48;
-    Serial.print(buff[num]);
+    Serial.print(num);
+    Serial.print(" ");
+    Serial.println(buff[num]);
     switch(num){
       case 0:
-        n = buff[num];
+        d1 = buff[num];        
         break;
       case 1:
-        r = buff[num];
+        d2 = buff[num];        
+        n = d1*10+d2;
         break;
       case 2:
-        g = buff[num];
+        r[n] = buff[num];
         break;
       case 3:
-        b = buff[num];
-        liteMyHanger(n,r,g,b);
-        if( r==7 && g==7 &&b==7 ){
+        g[n] = buff[num];
+        break;
+      case 4:
+        b[n] = buff[num];
+        liteMyHanger(n,r[n],g[n],b[n]);
+        if( r[n]==7 && g[n]==7 && b[n]==7 ){
           roulette();
         }
         Serial.println();
@@ -76,33 +99,37 @@ void loop() {
 
 }
 
-void liteMyHanger(int n,int r,int g,int b){
-  int ratio = 9;
-  if( n != 0 ){
-    pixels.setPixelColor( interval*(n-1)+1, pixels.Color(r*ratio,g*ratio,b*ratio));
-    pixels.show();
-  }else{
-    for( int i = 0; i < numpixels; i++ ){
-      pixels.setPixelColor( interval*(i-1)+1, pixels.Color(r*ratio,g*ratio,b*ratio));
-      pixels.show();
+void liteMyHanger(int n,int rn,int gn,int bn){
+
+  r[n] = rn;
+  g[n] = gn;
+  b[n] = bn;
+
+  if( n == 0 ){
+    for(int i=1;i<numhangers+1;i++){
+      r[i] = rn;
+      g[i] = gn;
+      b[i] = bn;
+      pixels.setPixelColor( interval*(i-1), pixels.Color(r[i]*ratio,g[i]*ratio,b[i]*ratio));
     }
   }
+
+  pixels.setPixelColor( interval*(n-1), pixels.Color(r[n]*ratio,g[n]*ratio,b[n]*ratio));
+  pixels.show();    
+
 }
 
 void roulette(){
-  int ratio = 9;
-  int imax = random(20,30);
-  for(int i=0; i<imax; i++ ){
-    r = random(1,7);
-    g = random(1,7);
-    b = random(1,7);
+  Serial.println("roulette");
+  const int imax = random(rouletteMin,rouletteMax);
+  for(int i=1; i<imax+1; i++ ){
     liteMyHanger(0,0,0,0);
-    if( i%numpixels != 0 ){
-      liteMyHanger(i%numpixels,r,g,b);
+    if( i%numhangers != 0 ){
+      liteMyHanger(i%numhangers,random(9),random(9),random(9));      
     }else{
-      liteMyHanger(1,r,g,b);
+      liteMyHanger(1,random(9),random(9),random(9));
     }
-    delay(200);
+    delay(delayTime);
   }
-
+  
 }
