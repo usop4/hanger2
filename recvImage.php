@@ -26,7 +26,6 @@ require_once("alchemy.php");
 
 $alchemy = new Alchemy();
 $keywords = $alchemy->sendUrl($base_url.$fname);
-mydump("temp",$keywords);
 
 // 取得したテキストをDBに保存
 

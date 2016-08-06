@@ -13,6 +13,16 @@ if( preg_match("/(help)|(こんにちは)/i",$text)){
 
 elseif( preg_match("/リセット/",$text)){
     file_get_contents($base_url."db.php?reset");
+
+    // Livedoorの天気を利用
+    // http://weather.livedoor.com/forecast/rss/area/130010.xml
+    // 10日（日）の天気は晴時々曇、最高気温は32℃ 最低気温は22℃でしょう。
+    $debug = false; // trueにすると、Livedoorに問い合わせず、ローカルファイルを利用
+    $url = "http://weather.livedoor.com/forecast/rss/area/130010.xml";
+    if( $debug != true ){
+        file_put_contents("weather_temp",file_get_contents($url));
+    }
+
     echo "# DBをリセットしました<00>";
 }
 
@@ -22,14 +32,6 @@ elseif( preg_match("/(色)|(流行)/",$text)){
 
 elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
 
-    // Livedoorの天気を利用
-    // http://weather.livedoor.com/forecast/rss/area/130010.xml
-    // 10日（日）の天気は晴時々曇、最高気温は32℃ 最低気温は22℃でしょう。
-    $url = "http://weather.livedoor.com/forecast/rss/area/130010.xml";
-    $debug = true; // trueにすると、Livedoorに問い合わせず、ローカルファイルを利用
-    if( $debug != true ){
-        file_put_contents("weather_temp",file_get_contents($url));
-    }
     $xml = simplexml_load_file("weather_temp");
 
     if( preg_match("/(明日)/",$text) ){
@@ -47,14 +49,16 @@ elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
     $high = $matches[0][1];
     $low = @$matches[0][2] ?: $high-10;// 今日の天気の場合、最低気温が表示されないので-10にする
 
-    echo "<00>";
+    echo "<00><03><04>";
 
+    /*
     $db = new DB;
     echo $db->showByTemperature($high,$low);
+    */
 
-    if( $low < 18 ){
-        echo "カーディガンもお忘れなく<09>";
-    }
+    //if( $low < 18 ){
+        echo "カーディガンもお忘れなく<05>";
+    //}
 
 }
 

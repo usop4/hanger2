@@ -24,14 +24,14 @@ class DB{
         明後日 22-32
         */
         $stmt->execute(["01","900","900","10","30","2016-06-11","カーディガン"]);
-        $stmt->execute(["02","009","009","12","32","2016-06-10","blue"]);
-        $stmt->execute(["03","090","090","14","34","2016-06-01","green"]);
-        $stmt->execute(["04","609","609","16","36","2016-06-10","purple"]);
-        $stmt->execute(["05","990","990","18","38","2016-06-10","yellow"]);
-        $stmt->execute(["06","909","909","20","40","2016-06-10",""]);
-        $stmt->execute(["07","777","777","22","52","2016-06-10","grey"]);
-        $stmt->execute(["08","900","900","24","44","2016-06-10","red"]);
-        $stmt->execute(["09","090","090","26","46","2016-06-01","green"]);
+        $stmt->execute(["02","009","009","12","22","2016-06-10","blue"]);
+        $stmt->execute(["03","090","090","14","24","2016-06-01","green"]);
+        $stmt->execute(["04","609","609","16","26","2016-06-10","purple"]);
+        $stmt->execute(["05","990","990","18","28","2016-06-10","yellow"]);
+        $stmt->execute(["06","909","909","20","30","2016-06-10",""]);
+        $stmt->execute(["07","777","777","22","32","2016-06-10","grey"]);
+        $stmt->execute(["08","900","900","24","34","2016-06-10","red"]);
+        $stmt->execute(["09","090","090","26","36","2016-06-01","green"]);
     }
 
     function resetDb(){
@@ -113,6 +113,18 @@ class DB{
             echo "<br>";
         }
         return $results;
+    }
+
+    function getResultsByJSON(){
+        $pdo = $this->initDb();
+        $sql = "SELECT * FROM db";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $results = [];
+        while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
+            array_push($results,$result);
+        }
+        return json_encode($results);
     }
 
     function query($query){
@@ -218,4 +230,9 @@ if( isset($_GET["show"]) ){
     $db->showByTemperature(15,25);
     //$db->showOldest();
     $db->show();
+}
+
+if( isset($_GET["json"]) ){
+    $db = new DB();
+    echo $db->getResultsByJSON();
 }

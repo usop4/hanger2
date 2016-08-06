@@ -4,9 +4,12 @@
 *.jpg
 api.ini
 test.php
-test.js
+
 assets/
 monaca/components/
 .idea/*
 external/*
 .htaccess
+
+test.js
+default.json

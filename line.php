@@ -82,6 +82,9 @@ if( $json_string ){
         $message = file_get_contents($base_url."db.php?on=".$text);
         pushData($message);
     }
+    elseif( preg_match("/ルーレット/",$text)){
+        pushData("00777");
+    }
     else{
         $message = file_get_contents($base_url."selector.php?text=".$text);
         $message = str_replace("\n","\\n",$message);
@@ -95,7 +98,7 @@ if( $json_string ){
         foreach($out[0] as $hanger){
             $hanger = preg_replace(["(<)","(>)"],"",$hanger);
             if( $hanger != 0 ){
-                pushData($hanger."999");
+                pushData($hanger."909");
             }else{
                 pushData("00000");
             }

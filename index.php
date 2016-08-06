@@ -1,5 +1,4 @@
 <?php
-var_dump($_POST);
 if( isset($_POST["selector"]) ){
     $selector = $_POST["selector"];
     file_put_contents("selector",$selector);

@@ -100,7 +100,7 @@ if( isset($_POST["text"]) ){
             $hanger = preg_replace(["(&lt;)","(&gt;)"],"",$hanger);
             //$hanger = preg_replace(["(<)","(&gt;)"],"",$hanger);
             if( $hanger != 0 ){
-                pushData($hanger."999");
+                pushData($hanger."909");
             }else{
                 pushData("00000");
             }
