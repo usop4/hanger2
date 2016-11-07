@@ -10,44 +10,22 @@ class Line{
         $this->ini = parse_ini_file("api.ini",true)["line"];
     }
 
-    function sendMessage($from,$text){
+    function replyMessage($token,$text){
 
-        $path = "/v1/events";
-        $url = "https://trialbot-api.line.me{$path}";
+        $path = "/v2/bot/message/reply";
+        $url = "https://api.line.me{$path}";
 
         $headers = [
             "Content-Type: application/json",
-            "X-Line-ChannelID: {$this->ini['channel_id']}",
-            "X-Line-ChannelSecret: {$this->ini['channel_secret']}",
-            "X-Line-Trusted-User-With-ACL: {$this->ini['mid']}"
+            "Authorization: Bearer {$this->ini['access_token']}"
         ];
 
-        mydump("temp",$headers);
-
         $post = json_encode([
-            "to"=>[$from],
-            "toChannel"=>1383378250,
-            "eventType"=>"138311608800106203",
-            "content"=>[
-                "toType"=>1,
-                "contentType"=>1,
-                "text"=>$text
+            "replyToken"=>$token,
+            "messages"=>[
+                ["type"=>"text","text"=>$text]
             ]
         ]);
-
-        $event_type = "138311608800106203";
-        $post = <<< EOM
-{
-    "to":["{$from}"],
-    "toChannel":1383378250,
-    "eventType":"{$event_type}",
-    "content":{
-        "toType":1,
-        "contentType":1,
-        "text":"{$text}"
-    }
-}
-EOM;
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_POST, true);
@@ -56,6 +34,7 @@ EOM;
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $output = curl_exec($curl);
+
         return $output;
 
     }
@@ -63,14 +42,18 @@ EOM;
 }
 
 $json_string = file_get_contents('php://input');
+
 if( $json_string ){
 
     $json_object = json_decode($json_string);
-    $content = $json_object->result{0}->content;
-    $text = $content->text;
-    $from = $content->from;
-    $message_id = $content->id;
-    $content_type = $content->contentType;
+    $content = $json_object->events[0];
+    mydump("test",$content,FALSE);
+
+    $text = $content->message->text;
+    $replyToken = $content->replyToken;
+
+    $temp = $replyToken;
+    mydump("test",$temp);
 
     if( preg_match("/[0-9]{4,5}/i",$text)){
         // 数字5桁の場合、シミュレータに送信
@@ -83,7 +66,12 @@ if( $json_string ){
         pushData($message);
     }
     elseif( preg_match("/ルーレット/",$text)){
+        $message = "ルーレットを回しちゃうよ";
         pushData("00777");
+    }
+    elseif( preg_match("/リサイクル/",$text)){
+        pushData("00000");
+        pushData("02900");
     }
     else{
         $message = file_get_contents($base_url."selector.php?text=".$text);
@@ -91,7 +79,7 @@ if( $json_string ){
 
         $line = new Line();
         $temp = preg_replace('/<[0-9]{2}>/','',$message);
-        $line->sendMessage($from,$temp);
+        $line->replyMessage($replyToken,$temp);
         pushData($temp);
 
         preg_match_all("/<[0-9]{2}>/",$message,$out,PREG_PATTERN_ORDER);

@@ -6,8 +6,8 @@ require_once("db.php");
 $text = $_GET["text"];
 
 if( preg_match("/(help)|(こんにちは)/i",$text)){
-    echo "こんにちは。ハンガーbotです。\n"
-        ."天気、流行、\n"
+    echo "こんにちは。ハンガーbotです。"
+        ."天気、流行、好みの色"
         ."などの言葉を元に、おすすめの服を選びます。<00>";
 }
 
@@ -83,8 +83,8 @@ else{
         echo $result."\n";
     }
     */
-
-    echo $text." でございます";
+    echo file_get_contents("http://barcelona.sakura.ne.jp/sandbox/hanger2/userlocal.php?text=".$text);
+    //echo $text." でございます";
 }
 
 

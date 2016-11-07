@@ -3,12 +3,16 @@
 $ini = parse_ini_file("api.ini",true);
 $base_url = $ini["base_url"];
 
-function mydump($fname,$data){
+function mydump($fname,$data,$overwrite = TRUE ){
     ob_start();
     var_dump($data);
     $out = ob_get_contents();
     ob_end_clean();
-    file_put_contents($fname,date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
+    if( $overwrite == TRUE ){
+        file_put_contents($fname,date(DATE_RFC2822)." ".$out.PHP_EOL,FILE_APPEND);
+    }else{
+        file_put_contents($fname,date(DATE_RFC2822)." ".$out.PHP_EOL);
+    }
 }
 
 function pushData($text){
