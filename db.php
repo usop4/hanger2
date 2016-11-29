@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * db.php?json
+ *
+ */
+
 require_once("common.php");
 date_default_timezone_set("Asia/Tokyo");
 
@@ -23,15 +28,15 @@ class DB{
         明日 23-33
         明後日 22-32
         */
-        $stmt->execute(["01","900","900","10","30","2016-06-11","カーディガン"]);
-        $stmt->execute(["02","009","009","12","22","2016-06-10","blue"]);
-        $stmt->execute(["03","090","090","14","24","2016-06-01","green"]);
-        $stmt->execute(["04","609","609","16","26","2016-06-10","purple"]);
-        $stmt->execute(["05","990","990","18","28","2016-06-10","yellow"]);
-        $stmt->execute(["06","909","909","20","30","2016-06-10",""]);
-        $stmt->execute(["07","777","777","22","32","2016-06-10","grey"]);
-        $stmt->execute(["08","900","900","24","34","2016-06-10","red"]);
-        $stmt->execute(["09","090","090","26","36","2016-06-01","green"]);
+        $stmt->execute(["1","900","900","10","30","2016-06-11","clothing,sleeve,t shirt,"]);
+        $stmt->execute(["2","009","009","12","22","2016-06-10","clothing,sleeve,outerwear,"]);
+        $stmt->execute(["3","090","090","14","24","2016-06-01","pink,clothing,sleeve,"]);
+        $stmt->execute(["4","609","609","16","26","2016-06-10","t shirt,white,clothing,"]);
+        $stmt->execute(["5","990","990","18","28","2016-06-10","clothing,sleeve,outerwear,"]);
+        $stmt->execute(["6","909","909","20","30","2016-06-10","clothing,sleeve,t shirt,"]);
+        $stmt->execute(["7","777","777","22","32","2016-06-10","clothing,sleeve,t shirt,"]);
+        $stmt->execute(["8","900","900","24","34","2016-06-10","clothing,sleeve,blouse,"]);
+        $stmt->execute(["9","090","090","26","36","2016-06-01","clothing,day dress,sleeve,"]);
     }
 
     function resetDb(){
@@ -99,6 +104,8 @@ class DB{
         $pdo = $this->initDb();
         $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
         $stmt->execute([$desc,$hanger]);
+        $stmt = $pdo->prepare("UPDATE db SET last=? WHERE num=?");
+        $stmt->execute([date("Y-m-d"),$hanger]);
     }
 
     function getResults(){

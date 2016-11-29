@@ -25,9 +25,17 @@ file_put_contents($fname,$temp);
 require_once("alchemy.php");
 
 $alchemy = new Alchemy();
-$keywords = $alchemy->sendUrl($base_url.$fname);
+$alchemy_keywords = $alchemy->sendUrl($base_url.$fname);
+
+// GCPでタグ取得
+
+$gcp_keywords = file_get_contents("http://barcelona.sakura.ne.jp/sandbox/hanger2/gcp.php?url=".$base_url.$fname);
 
 // 取得したテキストをDBに保存
+
+//$keywords = $alchemy_keywords."/".$gcp_keywords;
+$keywords = $gcp_keywords;
+
 
 require_once("db.php");
 $db = new DB();

@@ -39,6 +39,18 @@ var commonRGB = "999";
 
 var base_url = "http://barcelona.sakura.ne.jp/sandbox/hanger2/";
 
+var captions = [
+    {"num":"01","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"02","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"03","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"04","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"05","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"06","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"07","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"08","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"},
+    {"num":"09","cmd":"090","color":"090","low":"26","high":"36","last":"2016-06-01","feature":"green"}
+];
+
 var img;
 function preload(){
     var v = Math.random().toString(36).slice(-8);// 画像のキャッシュ防止
@@ -54,6 +66,9 @@ function preload(){
     }
     img["hanger"] = loadImage('hanger.png');
     img["bg"] = loadImage('bg.jpg');
+    $.getJSON(base_url+'db.php?json',function(data){
+        captions = data;
+    });
 }
 
 function setup(){
@@ -286,10 +301,10 @@ function drawHanger(x,num){
     textAlign(CENTER);
 
     textSize(32);
-    text("border,black&white",x1,y_desc+180);
+    text(captions[num-1]["feature"],x1,y_desc+180);
 
     textSize(32);
-    text("last: 5 days ago",x1,y_desc+240);
+    text(captions[num-1]["last"],x1,y_desc+240);
 
     textSize(32);
     text("weather: all",x1,y_desc+300);
@@ -307,22 +322,22 @@ function drawHanger(x,num){
 
 function getCamera(){
     navigator.camera.getPicture(
-        onSuccess,
-        onFail,
-        {
-            destinationType: Camera.DestinationType.FILE_URI,
-            allowEdit:true
-        });
+            onSuccess,
+            onFail,
+            {
+                destinationType: Camera.DestinationType.FILE_URI,
+                allowEdit:true
+            });
 }
 
 function getLibrary(){
     navigator.camera.getPicture(
-        onSuccess,
-        onFail,
-        {
-            destinationType: Camera.DestinationType.FILE_URI,
-            sourceType: Camera.PictureSourceType.PHOTOLIBRARY
-        });
+            onSuccess,
+            onFail,
+            {
+                destinationType: Camera.DestinationType.FILE_URI,
+                sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+            });
 }
 
 function onSuccess(data){
@@ -348,16 +363,16 @@ function onFail(){
 
 function postImage(image){
     $.post(
-        base_url+"/recvImage.php?fname="+num+".jpg",
-        {
-            'image':image
-        },
-        function(data){
-            alert("success");
-        },
-        function(data){
-            alert("failed");
-        }
+            base_url+"/recvImage.php?fname="+num+".jpg",
+            {
+                'image':image
+            },
+            function(data){
+                alert("success");
+            },
+            function(data){
+                alert("failed");
+            }
     );
 }
 
