@@ -20,23 +20,23 @@ class DB{
     function createDb(){
         $pdo = $this->initDb();
         $pdo->query("DROP TABLE db"); // 最初の１回だけコメントアウト
-        $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature)");
-        $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?,?,?,?)");
+        $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature,feature2,feature3)");
+        $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?,?,?,?,?,?)");
         /* メモ
         nullの場合は-10を設定
         今日 15-25
         明日 23-33
         明後日 22-32
         */
-        $stmt->execute(["1","900","900","10","30","2016-06-11","clothing,sleeve,t shirt,"]);
-        $stmt->execute(["2","009","009","12","22","2016-06-10","clothing,sleeve,outerwear,"]);
-        $stmt->execute(["3","090","090","14","24","2016-06-01","pink,clothing,sleeve,"]);
-        $stmt->execute(["4","609","609","16","26","2016-06-10","t shirt,white,clothing,"]);
-        $stmt->execute(["5","990","990","18","28","2016-06-10","clothing,sleeve,outerwear,"]);
-        $stmt->execute(["6","909","909","20","30","2016-06-10","clothing,sleeve,t shirt,"]);
-        $stmt->execute(["7","777","777","22","32","2016-06-10","clothing,sleeve,t shirt,"]);
-        $stmt->execute(["8","900","900","24","34","2016-06-10","clothing,sleeve,blouse,"]);
-        $stmt->execute(["9","090","090","26","36","2016-06-01","clothing,day dress,sleeve,"]);
+        $stmt->execute(["1","900","900","10","30","2016-06-11","person,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
+        $stmt->execute(["2","009","009","12","22","2016-06-10","person,wedding,","clothing,sleeve,outerwear,","People,Person,Human,"]);
+        $stmt->execute(["3","090","090","14","24","2016-06-01","person","pink,clothing,sleeve,","People,Person,Human,"]);
+        $stmt->execute(["4","609","609","16","26","2016-06-10","person,clothing,","person,clothing,","t shirt,white,clothing,","People,Person,Human,"]);
+        $stmt->execute(["5","990","990","18","28","2016-06-10","person,wedding","clothing,sleeve,outerwear,","People,Person,Human,"]);
+        $stmt->execute(["6","909","909","20","30","2016-06-10","person,shirt,men,t-shirt,design,fabric,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
+        $stmt->execute(["7","777","777","22","32","2016-06-10","person,clothing,fashion,dress,","clothing,sleeve,t shirt,","People,Person,Human,"]);
+        $stmt->execute(["8","900","900","24","34","2016-06-10","person,dress,clothing,fashion,","clothing,sleeve,blouse,","People,Person,Human,"]);
+        $stmt->execute(["9","090","090","26","36","2016-06-01","person,clothing,","clothing,day dress,sleeve,","People,Person,Human,"]);
     }
 
     function resetDb(){
@@ -104,6 +104,18 @@ class DB{
         $pdo = $this->initDb();
         $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
         $stmt->execute([$desc,$hanger]);
+        $stmt = $pdo->prepare("UPDATE db SET last=? WHERE num=?");
+        $stmt->execute([date("Y-m-d"),$hanger]);
+    }
+
+    function setFeature3($hanger=1,$feature,$feature2,$feature3){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
+        $stmt->execute([$feature,$hanger]);
+        $stmt = $pdo->prepare("UPDATE db SET feature2=? WHERE num=?");
+        $stmt->execute([$feature2,$hanger]);
+        $stmt = $pdo->prepare("UPDATE db SET feature3=? WHERE num=?");
+        $stmt->execute([$feature3,$hanger]);
         $stmt = $pdo->prepare("UPDATE db SET last=? WHERE num=?");
         $stmt->execute([date("Y-m-d"),$hanger]);
     }

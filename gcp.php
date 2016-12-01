@@ -30,9 +30,10 @@ $array = json_decode($json, true);
 
 $temp = $array["responses"][0]["labelAnnotations"];
 
-//var_dump($temp);
-//echo "<hr>";
-
-foreach( $temp as $a ){
-    echo $a["description"].",";
+if( $temp ){
+    foreach( $temp as $a ){
+        if( $a ){
+            echo $a["description"].",";
+        }
+    }
 }

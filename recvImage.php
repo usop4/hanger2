@@ -20,23 +20,28 @@ $temp = base64_decode($temp);
 
 file_put_contents($fname,$temp);
 
-// 保存されたデータをAlchemyに送信しタグ出力
+// Alchemyに送信しタグ出力
 
 require_once("alchemy.php");
 
 $alchemy = new Alchemy();
 $alchemy_keywords = $alchemy->sendUrl($base_url.$fname);
+echo $alchemy_keywords."<br>";
 
 // GCPでタグ取得
 
 $gcp_keywords = file_get_contents("http://barcelona.sakura.ne.jp/sandbox/hanger2/gcp.php?url=".$base_url.$fname);
+echo $gcp_keywords."<br>";
+
+// Amazon Rekognitionでタグ取得
+$url = "http://barcelona.sakura.ne.jp/sandbox/hanger2/rekog.php?fname=".$fname;
+echo $url;
+$rekog_keywords = file_get_contents($url);
+echo $rekog_keywords."<br>";
 
 // 取得したテキストをDBに保存
 
-//$keywords = $alchemy_keywords."/".$gcp_keywords;
-$keywords = $gcp_keywords;
-
-
 require_once("db.php");
 $db = new DB();
-$db->setDesc($num,$keywords);
+//$db->setDesc($num,$keywords);
+$db->setFeature3($num,$alchemy_keywords,$gcp_keywords,$rekog_keywords);
