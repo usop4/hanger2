@@ -108,6 +108,12 @@ class DB{
         $stmt->execute([date("Y-m-d"),$hanger]);
     }
 
+    function setFeature($hanger=1,$column,$desc){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("UPDATE db SET ".$column."=? WHERE num=?");
+        $stmt->execute([$desc,$hanger]);
+    }
+
     function setFeature3($hanger=1,$feature,$feature2,$feature3){
         $pdo = $this->initDb();
         $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");

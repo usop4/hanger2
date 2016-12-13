@@ -36,20 +36,24 @@ elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
 
     if( preg_match("/(明日)/",$text) ){
         $desc = $xml->channel->item[2]->description;
+        echo $desc;
+        echo "<00><05><06>";
+
     }elseif( preg_match("/(明後日)/",$text) ){
         $desc = $xml->channel->item[3]->description;
+        echo $desc;
+        echo "<00><07><08>";
     }else{
         // 何も指定しない場合は今日の天気
         $desc = $xml->channel->item[1]->description;
+        echo $desc;
+        echo "<00><03><04>";
     }
-    echo $desc;
 
     $pattern = '/[0-9]{2}/';
     preg_match_all($pattern,$desc,$matches);
     $high = $matches[0][1];
     $low = @$matches[0][2] ?: $high-10;// 今日の天気の場合、最低気温が表示されないので-10にする
-
-    echo "<00><03><04>";
 
     /*
     $db = new DB;
@@ -84,6 +88,7 @@ else{
     }
     */
     echo file_get_contents("http://barcelona.sakura.ne.jp/sandbox/hanger2/userlocal.php?text=".$text);
+    echo "<00><0".rand(2,8).">";
     //echo $text." でございます";
 }
 
