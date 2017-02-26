@@ -19,29 +19,28 @@ class DB{
 
     function createDb(){
         $pdo = $this->initDb();
-        $pdo->query("DROP TABLE db"); // 最初の１回だけコメントアウト
-        $pdo->query("CREATE TABLE db(num,cmd,color,low,high,last,feature,feature2,feature3)");
-        $stmt = $pdo->prepare("INSERT INTO db VALUES(?,?,?,?,?,?,?,?,?)");
-        /* メモ
-        nullの場合は-10を設定
-        今日 15-25
-        明日 23-33
-        明後日 22-32
-        */
-        $stmt->execute(["1","900","900","10","30","2016-06-11","person,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
-        $stmt->execute(["2","009","009","12","22","2016-06-10","person,wedding,","clothing,sleeve,outerwear,","People,Person,Human,"]);
-        $stmt->execute(["3","090","090","14","24","2016-06-01","person","pink,clothing,sleeve,","People,Person,Human,"]);
-        $stmt->execute(["4","609","609","16","26","2016-06-10","person,clothing,","person,clothing,","t shirt,white,clothing,","People,Person,Human,"]);
-        $stmt->execute(["5","990","990","18","28","2016-06-10","person,wedding","clothing,sleeve,outerwear,","People,Person,Human,"]);
-        $stmt->execute(["6","909","909","20","30","2016-06-10","person,shirt,men,t-shirt,design,fabric,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
+        $pdo->query("DROP TABLE hangers"); // 最初の１回だけコメントアウト
+        $pdo->query("CREATE TABLE hangers(num,cmd,color,low,high,last,feature,feature2,feature3)");
+        $stmt = $pdo->prepare("INSERT INTO hangers VALUES(?,?,?,?,?,?,?,?,?)");
+        // nullの場合は-10を設定,今日 15-25,明日 23-33,明後日 22-32
+        $stmt->execute(["1","999","955","10","30","2016-06-11","person,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
+        $stmt->execute(["2","009","559","12","22","2016-06-10","person,wedding,","clothing,sleeve,outerwear,","People,Person,Human,"]);
+        $stmt->execute(["3","090","595","14","24","2016-06-01","person","pink,clothing,sleeve,","People,Person,Human,"]);
+        $stmt->execute(["4","099","599","16","26","2016-06-10","person,clothing,","person,clothing,","t shirt,white,clothing,","People,Person,Human,"]);
+        $stmt->execute(["5","990","995","18","28","2016-06-10","person,wedding","clothing,sleeve,outerwear,","People,Person,Human,"]);
+        $stmt->execute(["6","909","959","20","30","2016-06-10","person,shirt,men,t-shirt,design,fabric,","clothing,sleeve,t shirt,","Cloak,Poncho,Cardigan,"]);
         $stmt->execute(["7","777","777","22","32","2016-06-10","person,clothing,fashion,dress,","clothing,sleeve,t shirt,","People,Person,Human,"]);
-        $stmt->execute(["8","900","900","24","34","2016-06-10","person,dress,clothing,fashion,","clothing,sleeve,blouse,","People,Person,Human,"]);
-        $stmt->execute(["9","090","090","26","36","2016-06-01","person,clothing,","clothing,day dress,sleeve,","People,Person,Human,"]);
+        $stmt->execute(["8","900","955","24","34","2016-06-10","person,dress,clothing,fashion,","clothing,sleeve,blouse,","People,Person,Human,"]);
+        $stmt->execute(["9","090","595","26","36","2016-06-01","person,clothing,","clothing,day dress,sleeve,","People,Person,Human,"]);
+
+        $pdo->query("DROP TABLE users"); // 最初の１回だけコメントアウト
+        $pdo->query("CREATE TABLE users(uid,hanger,date)");
+
     }
 
     function resetDb(){
         $pdo = $this->initDb();
-        $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET cmd=? WHERE num=?");
         for($i=0;$i<10;$i++){
             $stmt->execute(["000",$i]);
         }
@@ -49,9 +48,29 @@ class DB{
 
     function clear(){
         $pdo = $this->initDb();
-        $stmt = $pdo->prepare("UPDATE db SET cmd=null");
+        $stmt = $pdo->prepare("UPDATE hangers SET cmd=null");
         $stmt->execute();
     }
+
+    function setFav($uid,$hanger){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("UPDATE users SET hanger=?,time=? WHERE uid=?");
+        $stmt->execute([$hanger,time(),$uid]);
+        $rowCount = $stmt->rowCount();
+        if( $rowCount == 0 ){
+            $stmt = $pdo->prepare("INSERT INTO users VALUES(?,?,?)");
+            $stmt->execute([$uid,$hanger,0]);
+        }
+    }
+
+    function getFav($uid){
+        $pdo = $this->initDb();
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE uid=?");
+        $stmt->execute([$uid]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result;
+    }
+
 
     function setColor($digit){
 
@@ -63,7 +82,7 @@ class DB{
             return "#000000";
         }else{
             $pdo = $this->initDb();
-            $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
+            $stmt = $pdo->prepare("UPDATE hangers SET cmd=? WHERE num=?");
             $stmt->execute([$color,$num]);
             $r = $this->hex[ $color[0] ];
             $g = $this->hex[ $color[1] ];
@@ -80,12 +99,12 @@ class DB{
             if( $on == "0" || $on == "00" ){
                 echo "00000";
             }else{
-                $sql = "SELECT * FROM db WHERE num=?";
+                $sql = "SELECT * FROM hangers WHERE num=?";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([$on]);
                 while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
                     $color = $result["color"];
-                    $stmt = $pdo->prepare("UPDATE db SET cmd=? WHERE num=?");
+                    $stmt = $pdo->prepare("UPDATE hangers SET cmd=? WHERE num=?");
                     if( $result["color"] == $result["cmd"] ){
                         // 既に点灯していたら消す
                         $stmt->execute(["000",$on]);
@@ -102,33 +121,33 @@ class DB{
 
     function setDesc($hanger=1,$desc="red"){
         $pdo = $this->initDb();
-        $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET feature=? WHERE num=?");
         $stmt->execute([$desc,$hanger]);
-        $stmt = $pdo->prepare("UPDATE db SET last=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET last=? WHERE num=?");
         $stmt->execute([date("Y-m-d"),$hanger]);
     }
 
     function setFeature($hanger=1,$column,$desc){
         $pdo = $this->initDb();
-        $stmt = $pdo->prepare("UPDATE db SET ".$column."=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET ".$column."=? WHERE num=?");
         $stmt->execute([$desc,$hanger]);
     }
 
     function setFeature3($hanger=1,$feature,$feature2,$feature3){
         $pdo = $this->initDb();
-        $stmt = $pdo->prepare("UPDATE db SET feature=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET feature=? WHERE num=?");
         $stmt->execute([$feature,$hanger]);
-        $stmt = $pdo->prepare("UPDATE db SET feature2=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET feature2=? WHERE num=?");
         $stmt->execute([$feature2,$hanger]);
-        $stmt = $pdo->prepare("UPDATE db SET feature3=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET feature3=? WHERE num=?");
         $stmt->execute([$feature3,$hanger]);
-        $stmt = $pdo->prepare("UPDATE db SET last=? WHERE num=?");
+        $stmt = $pdo->prepare("UPDATE hangers SET last=? WHERE num=?");
         $stmt->execute([date("Y-m-d"),$hanger]);
     }
 
     function getResults(){
         $pdo = $this->initDb();
-        $sql = "SELECT * FROM db";
+        $sql = "SELECT * FROM hangers";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $results = [];
@@ -142,7 +161,7 @@ class DB{
 
     function getResultsByJSON(){
         $pdo = $this->initDb();
-        $sql = "SELECT * FROM db";
+        $sql = "SELECT * FROM hangers";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $results = [];
@@ -154,7 +173,7 @@ class DB{
 
     function query($query){
         $pdo = $this->initDb();
-        $sql = 'SELECT num FROM db WHERE feature LIKE ?';
+        $sql = 'SELECT num FROM hangers WHERE feature LIKE ?';
         $stmt = $pdo->prepare($sql);
         $stmt->execute(["%".$query."%"]);
         $results = [];
@@ -174,13 +193,13 @@ class DB{
     function showOldest(){
         $pdo = $this->initDb();
 
-        $sql = 'SELECT min(last) as minlast FROM db';
+        $sql = 'SELECT min(last) as minlast FROM hangers';
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $minlast = $result["minlast"];
 
-        $sql = 'SELECT num FROM db WHERE last=?';
+        $sql = 'SELECT num FROM hangers WHERE last=?';
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$minlast]);
         $str = "";
@@ -192,7 +211,7 @@ class DB{
 
     function showByTemperature($low,$high){
         $pdo = $this->initDb();
-        $sql = 'SELECT num FROM db WHERE low<? AND high>?';
+        $sql = 'SELECT num FROM hangers WHERE low<? AND high>?';
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$low,$high]);
         $str = "";
@@ -200,7 +219,6 @@ class DB{
             $str = $str."<".$result["num"]."> ";
         }
         echo $str;
-        mydump("log",$str);
     }
 }
 
