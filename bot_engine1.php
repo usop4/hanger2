@@ -8,7 +8,7 @@ $text = $_GET["text"];
 if( preg_match("/(help)|(こんにちは)/i",$text)){
     echo "こんにちは。ハンガーbotです。"
         ."天気、流行、好みの色"
-        ."などの言葉を元に、おすすめの服を選びます。<00>";
+        ."などの言葉を元に、おすすめの服を選びます。<01><02><03><04><05>";
 }
 
 elseif( preg_match("/リセット/",$text)){
@@ -27,7 +27,7 @@ elseif( preg_match("/リセット/",$text)){
 }
 
 elseif( preg_match("/(色)|(流行)/",$text)){
-    echo "流行りの色はカーキ、白、ブルーです。<00> <02> <04>";
+    echo "流行りの色はブルーです。<02> <08>";
 }
 
 elseif( preg_match("/(天気)|(暑)|(寒)|(涼)|(暖)/",$text) ){
@@ -78,18 +78,9 @@ elseif( preg_match("/(チャレンジ)|(着てない)|(勝負服)/",$text)){
 }
 
 else{
-
-    /*
-    $results = file_get_contents($base_url."db.php?query=".$text);
-    $results = json_decode($results);
-    foreach($results as $result){
-        file_get_contents($base_url."db.php?on=".$result);
-        echo $result."\n";
-    }
-    */
-    echo file_get_contents("http://barcelona.sakura.ne.jp/sandbox/hanger2/userlocal.php?text=".$text);
-    echo "<00><0".rand(2,8).">";
-    //echo $text." でございます";
+    //echo file_get_contents($base_url."userlocal.php?text=".$text);
+    echo file_get_contents($base_url."docomo.php?text=".$text);
+    //echo "<00><0".rand(2,8).">";
 }
 
 

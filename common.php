@@ -3,6 +3,8 @@
 $ini = parse_ini_file("api.ini",true);
 $base_url = $ini["base_url"];
 
+date_default_timezone_set("Asia/Tokyo");
+
 function mydump($fname,$data,$overwrite = TRUE ){
     ob_start();
     var_dump($data);
