@@ -6,9 +6,19 @@ require_once("db.php");
 $text = $_GET["text"];
 
 if( preg_match("/(help)|(こんにちは)/i",$text)){
+    $hangers = "";
+    $array = [];
+    while( sizeof($array) < 5 ){ // LINEのカルーセルで表示できる上限（＝５）
+        $num = rand(1,9);
+        if( !in_array($num,$array) ){
+            array_push($array,$num);
+            $hangers = $hangers."<0".$num."> ";
+        }
+    }
     echo "こんにちは。ハンガーbotです。"
         ."天気、流行、好みの色"
-        ."などの言葉を元に、おすすめの服を選びます。<01><02><03><04><05>";
+        ."などの言葉を元に、おすすめの服を選びます。"
+        .$hangers;
 }
 
 elseif( preg_match("/リセット/",$text)){

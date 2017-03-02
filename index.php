@@ -3,6 +3,11 @@ if( isset($_POST["selector"]) ){
     $selector = $_POST["selector"];
     file_put_contents("selector",$selector);
 }
+if( isset($_GET["selector"]) ){
+    $selector = $_GET["selector"];
+    file_put_contents("selector",$selector);
+}
+
 ?>
 <html>
 <head>

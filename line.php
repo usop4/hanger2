@@ -9,8 +9,8 @@ class Line{
 
     function Line(){
         $this->ini = parse_ini_file("api.ini",true)["line"];
+        $this->base_url = parse_ini_file("api.ini",true)["base_url"];
     }
-
 
     function pushMessage($to,$text){
 
@@ -101,7 +101,6 @@ class Line{
 
         $output = curl_exec($curl);
         return $output;
-
     }
 
     function replyCarousel($token,$array){
@@ -116,10 +115,12 @@ class Line{
 
         $column = [];
         foreach($array as $num){
-            if( preg_match("/(0)[1-9]{1}/",$num) ){
-                $num = str_replace("0","",$num);
+            if( preg_match("/[0-9]{2}/",$num) ){
+                if( preg_match("/(0)[1-9]{1}/",$num) ){
+                    $num = str_replace("0","",$num);
+                }
                 array_push($column,[
-                        "thumbnailImageUrl"=>$base_url.$num.".jpg",
+                        "thumbnailImageUrl"=>$this->base_url.$num.".jpg",
                         "text"=>$num,
                         "actions"=>[
                             ["type"=>"postback","label"=>"on","data"=>$num],
@@ -150,12 +151,8 @@ class Line{
 
         $output = curl_exec($curl);
         return $output;
-
     }
 
-    /*
-     * $line->replyButtons($replyToken,"test",["test1","test2"]);
-     */
     function replyButtons($token,$text,$buttons){
 
         $path = "/v2/bot/message/reply";
@@ -197,10 +194,10 @@ class Line{
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
         $output = curl_exec($curl);
+        mydump("event",$output);
         return $output;
 
     }
-
 
     function replyPPAP($token){
 
@@ -217,8 +214,8 @@ class Line{
             "messages"=>[
                 [
                     "type"=>"image",
-                    "originalContentUrl"=>$base_url."ppap.jpg",
-                    "previewImageUrl"=>$base_url."ppap.jpg",
+                    "originalContentUrl"=>$this->base_url."ppap.jpg",
+                    "previewImageUrl"=>$this->base_url."ppap.jpg",
                 ]
             ]
         ]);
@@ -259,9 +256,8 @@ foreach ($json_object->events as $event) {
         $data = $event->postback->data;
 
         // 数字１桁の場合、特定のハンガーを光らせ、DBに記録する
-        if( preg_match("/^[1-9]{1}$/i",$data)){
+        if( preg_match("/^[0-9]{1}$/i",$data)){
             pushData("00000");
-            //$message = file_get_contents($base_url."db.php?on=".$data);
             pushData("0".$data."909");
             $db = new Db();
             $db->setFav($event->source->userId,$data);
@@ -279,6 +275,18 @@ foreach ($json_object->events as $event) {
             $line->replyCarousel($replyToken,$hangers);
         }
 
+        // 画像の差し替え
+        if( preg_match("/fname/",$data)){
+            parse_str($data);
+            $num = str_replace(".jpg","",$fname);
+
+            $url = $base_url."recvImage.php?".$data;
+            file_get_contents($url);
+            // 差し替え画像
+            //$line->replyMessage($replyToken,$num);
+            $line->replyCarousel($replyToken,["0".$num]);
+        }
+
         // 0の場合、全て消す
         if( $data == "0" ){
             pushData("00000");
@@ -287,6 +295,15 @@ foreach ($json_object->events as $event) {
     }
 
     if( $event->type == "message"){
+
+        if( $event->message->type == "image" ){
+            $line->replyButtons($replyToken,"入れ替え先を選んでください",[
+                ["label"=>"1","data"=>"fname=1.jpg&id=".$event->message->id],
+                ["label"=>"2","data"=>"fname=2.jpg&id=".$event->message->id],
+                ["label"=>"3","data"=>"fname=3.jpg&id=".$event->message->id],
+                ["label"=>"4","data"=>"fname=4.jpg&id=".$event->message->id]
+            ]);
+        }
 
         $text = $event->message->text;
 
@@ -309,6 +326,9 @@ foreach ($json_object->events as $event) {
             $message = "ルーレットを回しちゃうよ";
             $line->replyMessage($replyToken,$message);
             pushData("00777");
+        }
+        elseif( preg_match("/カルーセル/",$text)){
+            $line->replyCarousel($replyToken,["01","02","03","04","05"]);
         }
         elseif( preg_match("/Ppap/",$text)){
             $line->replyPPAP($replyToken);
@@ -359,10 +379,33 @@ foreach ($json_object->events as $event) {
                 }
                 sleep(0.2);
             }
+
             if( $carousel == "" ){
-                $line->replyMessage($replyToken,$temp);
+
+                $array = [];
+                while( sizeof($array) < 5 ){ // LINEのカルーセルで表示できる上限（＝５）
+                    $num = rand(1,9);
+                    if( !in_array($num,$array) ){
+                        array_push($array,$num);
+                        $carousel = $carousel."0".$num.",";
+                    }
+                }
+
+                $line->replyConfirm($replyToken,$temp,[
+                    [
+                        "type"=>"postback",
+                        "label"=>"表示する",
+                        "data"=>"carousel=".$carousel
+                    ],
+                    [
+                        "type"=>"postback",
+                        "label"=>"キャンセル",
+                        "data"=>"0"
+                    ]
+                ]);
                 pushData("00000");
                 pushData("0".rand(0,9).rand(0,3).rand(0,3).rand(0,3));
+
             }else{
                 $line->replyConfirm($replyToken,$temp,[
                     [
